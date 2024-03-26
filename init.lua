@@ -195,6 +195,14 @@ require("lazy").setup({
 				end
 			end)
 			require("ufo").setup(opts)
+
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = { "markdown" },
+				callback = function()
+					require("ufo").detach()
+					vim.opt_local.foldenable = false
+				end,
+			})
 		end,
 	},
 	{
@@ -305,7 +313,30 @@ require("lazy").setup({
 	},
 	"preservim/vim-markdown",
 	"gleam-lang/gleam.vim",
-    'Hippo0o/context.vim',
+	"Hippo0o/context.vim",
+	{
+		"kdheepak/lazygit.nvim",
+		cmd = {
+			"LazyGit",
+			"LazyGitConfig",
+			"LazyGitCurrentFile",
+			"LazyGitFilter",
+			"LazyGitFilterCurrentFile",
+		},
+		dependencies = { "nvim-lua/plenary.nvim" },
+		keys = {
+			{ "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" },
+		},
+	},
+	{
+		"akinsho/toggleterm.nvim",
+		version = "*",
+		opts = {},
+		keys = {
+			{ "<leader>lt", "<cmd>ToggleTerm direction=horizontal size=15<cr>" },
+			{ "<leader>ly", "<cmd>ToggleTerm direction=vertical size=80<cr>" },
+		},
+	},
 }, {})
 
 vim.o.background = "dark"
@@ -349,6 +380,17 @@ vim.keymap.set("", "<esc>", "<nop>")
 vim.keymap.set("i", "<esc>", "<nop>")
 vim.keymap.set("v", ";;", "<esc>")
 vim.keymap.set("i", ";l", "<esc>")
+vim.keymap.set("t", ";l", "<C-\\><C-n>")
+
+vim.keymap.set("n", "<C-h>", "<C-w>h")
+vim.keymap.set("n", "<C-j>", "<C-w>j")
+vim.keymap.set("n", "<C-k>", "<C-w>k")
+vim.keymap.set("n", "<C-l>", "<C-w>l")
+
+vim.keymap.set("t", "<C-h>", "<cmd>wincmd h<CR>")
+vim.keymap.set("t", "<C-j>", "<cmd>wincmd j<CR>")
+vim.keymap.set("t", "<C-k>", "<cmd>wincmd k<CR>")
+vim.keymap.set("t", "<C-l>", "<C-l><cmd>wincmd l<CR>")
 
 vim.keymap.set("n", "<leader>t", ":set wrap!<cr><C-L>")
 vim.keymap.set("n", "<leader>l", ":noh<cr><C-L>")
@@ -361,6 +403,9 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "nzzzv")
 
+vim.keymap.set("t", "<leader>q", "<cmd>:q!<cr>")
+vim.keymap.set("t", "<leader>lt", "<cmd>:q!<cr>")
+vim.keymap.set("t", "<leader>ly", "<cmd>:q!<cr>")
 
 -- python
 vim.cmd(":autocmd FileType python :inoremap <buffer> this self")
@@ -410,7 +455,9 @@ vim.cmd(":autocmd FileType typescript let @p='^df.Ienum ;lf=xx100@o'")
 
 -- javascript
 
-vim.cmd(':autocmd FileType javascript lua vim.keymap.set("n", "<leader>m", "mn?ig.module<CR>:noh<CR>yi\\\'`n:echo @+<CR>")')
+vim.cmd(
+	':autocmd FileType javascript lua vim.keymap.set("n", "<leader>m", "mn?ig.module<CR>:noh<CR>yi\\\'`n:echo @+<CR>")'
+)
 
 -- markdown
 vim.cmd(":autocmd FileType markdown command! Preview :CocCommand markdown-preview-enhanced.openPreview")
