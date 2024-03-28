@@ -246,6 +246,10 @@ require("lazy").setup({
 				harpoon:list():append()
 			end)
 
+			vim.keymap.set("n", "<leader>fc", function()
+				harpoon:list():clear()
+			end)
+
 			vim.keymap.set("n", "<leader>fq", function()
 				harpoon:list():select(1)
 			end)
@@ -260,7 +264,7 @@ require("lazy").setup({
 			end)
 		end,
 	},
-	"nvim-tree/nvim-web-devicons",
+	{ "nvim-tree/nvim-web-devicons", lazy = true },
 	{
 		"stevearc/conform.nvim",
 		opts = {
@@ -283,8 +287,11 @@ require("lazy").setup({
 			function Format()
 				require("conform").format({ lsp_fallback = true })
 			end
-			vim.keymap.set("n", "\\f", Format)
 		end,
+		keys = {
+
+			{ "\\f", "<cmd>lua Format()", desc = "Format the current buffer" },
+		},
 	},
 	{
 		"neoclide/coc.nvim",
@@ -295,25 +302,43 @@ require("lazy").setup({
                 inoremap <expr> <Tab> coc#pum#visible() ? coc#pum#next(1) : "\<Tab>"
                 inoremap <expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
             ]])
-
-			vim.keymap.set("n", "[d", "<Plug>(coc-diagnostic-prev-error)")
-			vim.keymap.set("n", "]d", "<Plug>(coc-diagnostic-next-error)")
-			vim.keymap.set("n", "[f", "<Plug>(coc-diagnostic-prev)")
-			vim.keymap.set("n", "]f", "<Plug>(coc-diagnostic-next)")
-
-			vim.keymap.set("n", "<leader>gD", "<Plug>(coc-declaration)")
-			vim.keymap.set("n", "<leader>gd", "<Plug>(coc-definition)")
-
-			vim.keymap.set("n", "K", ':call CocActionAsync("doHover")<cr><C-L>')
-
-			vim.keymap.set("n", "<leader>s", "<Plug>(coc-rename)")
-			vim.keymap.set("n", "<leader>ca", "<Plug>(coc-codeaction)")
-			vim.keymap.set("n", "<leader>gs", "<Plug>(coc-references)")
 		end,
+		keys = {
+			{ "[d", "<Plug>(coc-diagnostic-prev-error)" },
+			{ "]d", "<Plug>(coc-diagnostic-next-error)" },
+			{ "[f", "<Plug>(coc-diagnostic-prev)" },
+			{ "]f", "<Plug>(coc-diagnostic-next)" },
+
+			{ "<leader>gD", "<Plug>(coc-declaration)" },
+			{ "<leader>gd", "<Plug>(coc-definition)" },
+
+			{ "K", ':call CocActionAsync("doHover")<cr><C-L>' },
+
+			{ "<leader>s", "<Plug>(coc-rename)" },
+			{ "<leader>ca", "<Plug>(coc-codeaction)" },
+			{ "<leader>gs", "<Plug>(coc-references)" },
+		},
+		event = { "InsertEnter" },
 	},
-	"preservim/vim-markdown",
+	-- "preservim/vim-markdown",
 	"gleam-lang/gleam.vim",
-	"Hippo0o/context.vim",
+	{
+		"Hippo0o/context.vim",
+		cmd = {
+			"ContextActivate",
+			"ContextDisable",
+			"ContextDisableWIndow",
+			"ContextEnable",
+			"ContextEnableWindow",
+			"ContextPeek",
+			"ContextToggle",
+			"ContextToggleWindow",
+			"ContextUpdate",
+		},
+		keys = {
+			{ "<leader>cp", "<cmd>ContextPeek", desc = "ContextPeek" },
+		},
+	},
 	{
 		"kdheepak/lazygit.nvim",
 		cmd = {
@@ -336,6 +361,9 @@ require("lazy").setup({
 			{ "<leader>lt", "<cmd>ToggleTerm direction=horizontal size=15<cr>" },
 			{ "<leader>ly", "<cmd>ToggleTerm direction=vertical size=80<cr>" },
 		},
+	},
+	{
+		"dstein64/vim-startuptime",
 	},
 }, {})
 
