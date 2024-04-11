@@ -340,8 +340,13 @@ require('lazy').setup({
         build = 'npm ci',
         lazy = false,
         config = function(_, _)
+            vim.keymap.set('i', '<CR>', function()
+                if vim.fn['coc#pum#visible']() == 1 then return vim.fn['coc#pum#confirm']() end
+                return require('nvim-autopairs').completion_confirm()
+            end, { silent = true, noremap = true, expr = true, replace_keycodes = false })
+
             vim.cmd([[
-                inoremap <silent><expr> <cr> coc#pum#visible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
+                " inoremap <silent><expr> coc#pum#visible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
                 inoremap <expr> <Tab> coc#pum#visible() ? coc#pum#next(1) : "\<Tab>"
                 inoremap <expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
             ]])
@@ -361,7 +366,6 @@ require('lazy').setup({
             { '<leader>ca', '<Plug>(coc-codeaction)' },
             { '<leader>gs', '<Plug>(coc-references)' },
         },
-        event = { 'InsertEnter' },
     },
     {
         'preservim/vim-markdown',
@@ -446,6 +450,17 @@ require('lazy').setup({
             require('bamboo').load()
         end,
     },
+    {
+        'windwp/nvim-autopairs',
+        event = 'InsertEnter',
+        lazy = false,
+        priority = 1000,
+        opts = {},
+        config = function(_, opts)
+            local autopairs = require('nvim-autopairs')
+            autopairs.setup(opts)
+        end,
+    },
 }, {})
 
 function Format() require('conform').format({ lsp_fallback = true }) end
@@ -453,17 +468,6 @@ function Format() require('conform').format({ lsp_fallback = true }) end
 vim.o.background = 'dark'
 vim.api.nvim_set_hl(0, 'Folded', { bg = '#242629' })
 vim.api.nvim_set_hl(0, 'UfoCursorFoldedLine', { bg = '#484d51' })
-
--- vim.cmd([[
---     " hi default UfoFoldedFg guifg=Normal.foreground
---     " hi default UfoFoldedBg guibg=Folded.background
---     hi default link UfoPreviewSbar PmenuSbar
---     hi default link UfoPreviewThumb PmenuThumb
---     hi default link UfoPreviewWinBar UfoFoldedBg
---     hi default link UfoPreviewCursorLine Visual
---     hi default link UfoFoldedEllipsis Comment
---     hi default link UfoCursorFoldedLine CursorLine
--- ]])
 
 -- Run/Compile keybinding
 vim.keymap.set('n', '<leader>j', function()
@@ -524,55 +528,72 @@ vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.keymap.set('n', 'n', 'nzzzvzz')
 vim.keymap.set('n', 'N', 'Nzzzvzz')
 
-vim.keymap.set('t', '<leader>q', '<cmd>:q!<cr>')
-vim.keymap.set('t', '<leader>lt', '<cmd>:q!<cr>')
-vim.keymap.set('t', '<leader>ly', '<cmd>:q!<cr>')
+vim.keymap.set('t', '<c-q>', '<cmd>:q!<cr>')
 
 -- python
-vim.cmd(':autocmd FileType python :inoremap <buffer> this self')
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'python',
+    callback = function() vim.keymap.set('i', 'this', 'self') end,
+})
 
 -- rust
-vim.cmd(':autocmd FileType rust :inoremap <buffer> pri println!(')
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'rust',
+    callback = function() vim.keymap.set('i', 'pri', 'println!(') end,
+})
 
 -- typescript
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'typescript',
+    callback = function()
+        vim.api.nvim_create_user_command('ImpactClass', function(opts)
+            local name = opts.fargs[1]
+            local extends = opts.fargs[2]
+            local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+            vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, {
+                'interface ' .. name .. (extends ~= '' and ' extends ' .. extends or ' ') .. '{',
+                '}',
+                'interface ' .. name .. 'Constructor extends ImpactClass<' .. name .. '> {',
+                'new (): ' .. name,
+                '}',
+                'var ' .. name .. ': ' .. name .. 'Constructor',
+            })
+            Format()
+        end, {
+            nargs = '+',
+            complete = function(_, cmdLine, _)
+                local argIndex = #vim.split(cmdLine, '%s+')
+                if argIndex == 2 then
+                    return {}
+                elseif argIndex == 3 then
+                    return { 'ig.Class' }
+                else
+                    return {}
+                end
+            end,
+        })
 
-function ImpactClass()
-    local name = vim.fn.input('Interface name: ')
-    local extends = vim.fn.input('Extends: ')
-    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-    vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, {
-        'interface ' .. name .. (extends ~= '' and ' extends ' .. extends or ' ') .. '{',
-        '}',
-        'interface ' .. name .. 'Constructor extends ImpactClass<' .. name .. '> {',
-        'new (): ' .. name,
-        '}',
-        'var ' .. name .. ': ' .. name .. 'Constructor',
-    })
-    Format()
-end
-
-vim.cmd(':autocmd FileType typescript command! ImpactClass lua ImpactClass()')
-
-function TypedefsBeg()
-    vim.cmd('normal G$o')
-    vim.cmd('normal xxx')
-    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-    vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, {
-        '',
-        'export {}',
-        '',
-        'declare global {',
-        'namespace sc {}',
-        'namespace ig {}',
-        '}',
-    })
-    Format()
-end
-
-vim.cmd(':autocmd FileType typescript command! TypedefBeg lua TypedefsBeg()')
-
-vim.cmd(":autocmd FileType typescript let @o='f:r=i ;l'")
-vim.cmd(":autocmd FileType typescript let @p='^df.Ienum ;lf=xx100@o'")
+        vim.api.nvim_create_user_command('TypedefsBeg', function(_)
+            vim.cmd('normal G$o')
+            vim.cmd('normal xxx')
+            local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+            vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, {
+                '',
+                'export {}',
+                '',
+                'declare global {',
+                'namespace sc {}',
+                'namespace ig {}',
+                '}',
+            })
+            Format()
+        end, {})
+        vim.cmd([[
+            let @o='f:r=i ;l'
+            let @p='^df.Ienum ;lf=xx100@o'
+        ]])
+    end,
+})
 
 vim.keymap.set(
     'n',
@@ -585,14 +606,21 @@ vim.keymap.set(
 )
 
 -- javascript
-vim.cmd(
-    ':autocmd FileType javascript lua vim.keymap.set("n", "<leader>m", "mn?ig.module<CR>:noh<CR>yi\\\'`n:echo @+<CR>")'
-)
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'javascript',
+    callback = function() vim.keymap.set('n', '<leader>m', "mn?ig.module<CR>:noh<CR>yi\\'`n:echo @+<CR>") end,
+})
 
--- markdown
-vim.cmd(':autocmd FileType markdown command! Preview :CocCommand markdown-preview-enhanced.openPreview')
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'markdown',
+    callback = function()
+        vim.cmd([[
+            command! Preview :CocCommand markdown-preview-enhanced.openPreview
+        ]])
+    end,
+})
 
-vim.cmd(':autocmd FileType markdown command! Preview :CocCommand markdown-preview-enhanced.openPreview')
-
-vim.cmd("autocmd BufRead *.json.patch lua vim.opt.filetype = 'json'")
-vim.cmd("autocmd BufRead *.json.patch.cond lua vim.opt.filetype = 'json'")
+vim.api.nvim_create_autocmd('BufRead', {
+    pattern = '*.json.patch*',
+    callback = function() vim.opt.filetype = 'json' end,
+})
