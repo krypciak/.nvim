@@ -412,13 +412,14 @@ require('lazy').setup({
         'ribru17/bamboo.nvim',
         lazy = false,
         priority = 1000,
+        enabled = true,
         opts = {
             colors = {
                 black = '#111210',
                 bg0 = '#1d1f21', -- '#252623',
-                bg1 = '#2f312c',
-                bg2 = '#383b35',
-                bg3 = '#3a3d37',
+                bg1 = '#303336',
+                bg2 = '#303336',
+                bg3 = '#303336',
                 bg_d = '#232627', -- '#1c1e1b',
                 bg_blue = '#68aee8',
                 bg_yellow = '#e2c792',
@@ -450,6 +451,19 @@ require('lazy').setup({
 function Format() require('conform').format({ lsp_fallback = true }) end
 
 vim.o.background = 'dark'
+vim.api.nvim_set_hl(0, 'Folded', { bg = '#242629' })
+vim.api.nvim_set_hl(0, 'UfoCursorFoldedLine', { bg = '#484d51' })
+
+-- vim.cmd([[
+--     " hi default UfoFoldedFg guifg=Normal.foreground
+--     " hi default UfoFoldedBg guibg=Folded.background
+--     hi default link UfoPreviewSbar PmenuSbar
+--     hi default link UfoPreviewThumb PmenuThumb
+--     hi default link UfoPreviewWinBar UfoFoldedBg
+--     hi default link UfoPreviewCursorLine Visual
+--     hi default link UfoFoldedEllipsis Comment
+--     hi default link UfoCursorFoldedLine CursorLine
+-- ]])
 
 -- Run/Compile keybinding
 vim.keymap.set('n', '<leader>j', function()
