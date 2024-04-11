@@ -109,10 +109,53 @@ require('lazy').setup({
     {
         'nvim-telescope/telescope.nvim',
         dependencies = { 'nvim-telescope/telescope-fzf-native.nvim' },
-        setup = function() require('telescope').load_extension('fzf') end,
+        opts = {
+            defaults = {
+                preview = {
+                    mime_hook = function(filepath, bufnr, opts)
+                        local is_image = function(filepath1)
+                            local image_extensions = { 'png', 'jpg' } -- Supported image formats
+                            local split_path = vim.split(filepath1:lower(), '.', { plain = true })
+                            local extension = split_path[#split_path]
+                            return vim.tbl_contains(image_extensions, extension)
+                        end
+                        if is_image(filepath) then
+                            local term = vim.api.nvim_open_term(bufnr, {})
+                            local function send_output(_, data, _)
+                                for _, d in ipairs(data) do
+                                    vim.api.nvim_chan_send(term, d .. '\r\n')
+                                end
+                            end
+                            vim.fn.jobstart({
+                                'catimg',
+                                filepath, -- Terminal image viewer command
+                            }, {
+                                on_stdout = send_output,
+                                stdout_buffered = true,
+                                pty = true,
+                            })
+                        else
+                            require('telescope.previewers.utils').set_preview_message(
+                                bufnr,
+                                opts.winid,
+                                'Binary cannot be previewed'
+                            )
+                        end
+                    end,
+                },
+            },
+        },
+        setup = function(_, opts)
+            local telescope = require('telescope')
+            telescope.load_extension('fzf')
+            telescope.setup(opts)
+        end,
         keys = {
-            { '<leader>a', '<cmd>Telescope git_files<cr>' },
-            { '<leader>A', '<cmd>Telescope find_files<cr>' },
+            { '<leader>fa', '<cmd>Telescope git_files show_untracked=true<cr>' },
+            { '<leader>fA', '<cmd>Telescope find_files no_ignore=true no_ignore_parent=true<cr>' },
+            { '<leader>fs', '<cmd>Telescope live_grep<cr>' },
+            { '<leader>fd', '<cmd>Telescope current_buffer_fuzzy_find<cr>' },
+            { '<leader>fg', '<cmd>Telescope git_bcommits<cr>' },
         },
     },
     {
@@ -197,9 +240,7 @@ require('lazy').setup({
 
             vim.api.nvim_create_autocmd('FileType', {
                 pattern = { 'markdown' },
-                callback = function()
-                    require('ufo').detach()
-                end,
+                callback = function() require('ufo').detach() end,
             })
         end,
         keys = {
@@ -249,13 +290,13 @@ require('lazy').setup({
             end
         end,
         keys = {
-            { '<leader>fl', function() Toggle_telescope(Harpoon:list()) end },
-            { '<leader>fa', function() Harpoon:list():append() end },
-            { '<leader>fc', function() Harpoon:list():clear() end },
-            { '<leader>fq', function() Harpoon:list():select(1) end },
-            { '<leader>fw', function() Harpoon:list():select(2) end },
-            { '<leader>fe', function() Harpoon:list():select(3) end },
-            { '<leader>fr', function() Harpoon:list():select(4) end },
+            -- { '<leader>fl', function() Toggle_telescope(Harpoon:list()) end },
+            -- { '<leader>fa', function() Harpoon:list():append() end },
+            -- { '<leader>fc', function() Harpoon:list():clear() end },
+            -- { '<leader>fq', function() Harpoon:list():select(1) end },
+            -- { '<leader>fw', function() Harpoon:list():select(2) end },
+            -- { '<leader>fe', function() Harpoon:list():select(3) end },
+            -- { '<leader>fr', function() Harpoon:list():select(4) end },
         },
     },
     { 'nvim-tree/nvim-web-devicons', lazy = true },
@@ -284,10 +325,7 @@ require('lazy').setup({
                 },
             },
         },
-        config = function(_, opts)
-            require('conform').setup(opts)
-            function Format() require('conform').format({ lsp_fallback = true }) end
-        end,
+        config = function(_, opts) require('conform').setup(opts) end,
         keys = {
             {
                 '\\f',
@@ -300,6 +338,7 @@ require('lazy').setup({
     {
         'neoclide/coc.nvim',
         build = 'npm ci',
+        lazy = false,
         config = function(_, _)
             vim.cmd([[
                 inoremap <silent><expr> <cr> coc#pum#visible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
@@ -327,7 +366,7 @@ require('lazy').setup({
     {
         'preservim/vim-markdown',
         dependencies = { 'godlygeek/tabular' },
-        ft = 'markdown'
+        ft = 'markdown',
     },
     {
         'Hippo0o/context.vim',
@@ -370,15 +409,47 @@ require('lazy').setup({
         },
     },
     {
-        'dstein64/vim-startuptime',
-        cmd = {
-            'StartupTime',
+        'ribru17/bamboo.nvim',
+        lazy = false,
+        priority = 1000,
+        opts = {
+            colors = {
+                black = '#111210',
+                bg0 = '#1d1f21', -- '#252623',
+                bg1 = '#2f312c',
+                bg2 = '#383b35',
+                bg3 = '#3a3d37',
+                bg_d = '#232627', -- '#1c1e1b',
+                bg_blue = '#68aee8',
+                bg_yellow = '#e2c792',
+                fg = '#fcfcfc', -- '#f1e9d2',
+                purple = '#9b59b6', -- '#aaaaff',
+                bright_purple = '#df73ff',
+                green = '#11d116', -- '#8fb573',
+                orange = '#ff9966',
+                blue = '#1d99f3', -- '#57a5e5',
+                yellow = '#fdbc4b', -- '#dbb651',
+                cyan = '#1abc9c', -- '#70c2be',
+                red = '#ed1515', -- '#e75a7c',
+                coral = '#f08080',
+                grey = '#7f8c8d', -- '#5b5e5a',
+                light_grey = '#838781',
+                diff_add = '#40531b',
+                diff_delete = '#893f45',
+                diff_change = '#2a3a57',
+                diff_text = '#3a4a67',
+            },
         },
+        config = function(_, opts)
+            require('bamboo').setup(opts)
+            require('bamboo').load()
+        end,
     },
 }, {})
 
+function Format() require('conform').format({ lsp_fallback = true }) end
+
 vim.o.background = 'dark'
--- vim.cmd('set termguicolors')
 
 -- Run/Compile keybinding
 vim.keymap.set('n', '<leader>j', function()
@@ -437,7 +508,7 @@ vim.keymap.set('', '<leader>z', ':%y<cr>')
 vim.keymap.set('n', '<C-d>', '<C-d>zz')
 vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.keymap.set('n', 'n', 'nzzzvzz')
-vim.keymap.set('n', 'N', 'nzzzvzz')
+vim.keymap.set('n', 'N', 'Nzzzvzz')
 
 vim.keymap.set('t', '<leader>q', '<cmd>:q!<cr>')
 vim.keymap.set('t', '<leader>lt', '<cmd>:q!<cr>')
@@ -489,8 +560,17 @@ vim.cmd(':autocmd FileType typescript command! TypedefBeg lua TypedefsBeg()')
 vim.cmd(":autocmd FileType typescript let @o='f:r=i ;l'")
 vim.cmd(":autocmd FileType typescript let @p='^df.Ienum ;lf=xx100@o'")
 
--- javascript
+vim.keymap.set(
+    'n',
+    '<leader>m',
+    function()
+        require('telescope.builtin').find_files({
+            default_text = vim.fn.getreg('+'),
+        })
+    end
+)
 
+-- javascript
 vim.cmd(
     ':autocmd FileType javascript lua vim.keymap.set("n", "<leader>m", "mn?ig.module<CR>:noh<CR>yi\\\'`n:echo @+<CR>")'
 )
