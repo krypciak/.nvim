@@ -156,6 +156,14 @@ require('lazy').setup({
             { '<leader>fs', '<cmd>Telescope live_grep<cr>' },
             { '<leader>fd', '<cmd>Telescope current_buffer_fuzzy_find<cr>' },
             { '<leader>fg', '<cmd>Telescope git_bcommits<cr>' },
+            {
+                '<leader>m',
+                function()
+                    require('telescope.builtin').find_files({
+                        default_text = vim.fn.getreg('+'),
+                    })
+                end,
+            },
         },
     },
     {
@@ -523,6 +531,7 @@ vim.keymap.set('n', '<leader>t', ':set wrap!<cr><C-L>')
 vim.keymap.set('n', '<leader>l', ':noh<cr><C-L>')
 vim.keymap.set('', '<leader>z', ':%y<cr>')
 
+vim.keymap.set('n', 'zz', 'zz4<c-e>')
 vim.keymap.set('n', '<C-d>', '<C-d>zz')
 vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.keymap.set('n', 'n', 'nzzzvzz')
@@ -595,20 +604,10 @@ vim.api.nvim_create_autocmd('FileType', {
     end,
 })
 
-vim.keymap.set(
-    'n',
-    '<leader>m',
-    function()
-        require('telescope.builtin').find_files({
-            default_text = vim.fn.getreg('+'),
-        })
-    end
-)
-
 -- javascript
 vim.api.nvim_create_autocmd('FileType', {
     pattern = 'javascript',
-    callback = function() vim.keymap.set('n', '<leader>m', "mn?ig.module<CR>:noh<CR>yi\\'`n:echo @+<CR>") end,
+    callback = function() vim.keymap.set('n', '<leader>m', "mn?ig.module<CR>:noh<CR>yi'`n:echo @+<CR>") end,
 })
 
 vim.api.nvim_create_autocmd('FileType', {
