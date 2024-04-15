@@ -1,4 +1,6 @@
 {
+  "coc.preferences.enableMessageDialog": true,
+
   "Lua.diagnostics.globals": ["vim"],
   "Lua.runtime.version": "LuaJIT",
 

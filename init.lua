@@ -1,5 +1,15 @@
 -- vars
 vim.o.clipboard = 'unnamedplus'
+vim.opt.showmode = false
+vim.opt.breakindent = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.updatetime = 250
+vim.opt.timeoutlen = 300
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+vim.opt.inccommand = 'split'
+vim.opt.cursorline = true
 
 vim.o.relativenumber = true
 vim.wo.number = true
@@ -38,7 +48,6 @@ vim.cmd([[
 
     :highlight PmenuSel ctermbg=238 ctermfg=255
 
-    set cursorline
     hi cursorline cterm=none term=none
     autocmd WinEnter * setlocal cursorline
     autocmd WinLeave * setlocal nocursorline
@@ -109,42 +118,7 @@ require('lazy').setup({
     {
         'nvim-telescope/telescope.nvim',
         dependencies = { 'nvim-telescope/telescope-fzf-native.nvim' },
-        opts = {
-            defaults = {
-                preview = {
-                    mime_hook = function(filepath, bufnr, opts)
-                        local is_image = function(filepath1)
-                            local image_extensions = { 'png', 'jpg' } -- Supported image formats
-                            local split_path = vim.split(filepath1:lower(), '.', { plain = true })
-                            local extension = split_path[#split_path]
-                            return vim.tbl_contains(image_extensions, extension)
-                        end
-                        if is_image(filepath) then
-                            local term = vim.api.nvim_open_term(bufnr, {})
-                            local function send_output(_, data, _)
-                                for _, d in ipairs(data) do
-                                    vim.api.nvim_chan_send(term, d .. '\r\n')
-                                end
-                            end
-                            vim.fn.jobstart({
-                                'catimg',
-                                filepath, -- Terminal image viewer command
-                            }, {
-                                on_stdout = send_output,
-                                stdout_buffered = true,
-                                pty = true,
-                            })
-                        else
-                            require('telescope.previewers.utils').set_preview_message(
-                                bufnr,
-                                opts.winid,
-                                'Binary cannot be previewed'
-                            )
-                        end
-                    end,
-                },
-            },
-        },
+        opts = {},
         setup = function(_, opts)
             local telescope = require('telescope')
             telescope.load_extension('fzf')
@@ -469,6 +443,8 @@ require('lazy').setup({
             autopairs.setup(opts)
         end,
     },
+    { 'numToStr/Comment.nvim', opts = {} },
+    { 'hiphish/rainbow-delimiters.nvim' },
 }, {})
 
 function Format() require('conform').format({ lsp_fallback = true }) end
@@ -511,8 +487,6 @@ vim.keymap.set('', '<leader>w', ':w<cr>')
 vim.keymap.set('', '<leader>r', ':q!<cr>')
 vim.keymap.set('', '<leader>e', ':wq<cr>')
 
-vim.keymap.set('', '<esc>', '<nop>')
-vim.keymap.set('i', '<esc>', '<nop>')
 vim.keymap.set('v', ';;', '<esc>')
 vim.keymap.set('i', ';l', '<esc>')
 vim.keymap.set('t', ';l', '<C-\\><C-n>')
@@ -528,14 +502,15 @@ vim.keymap.set('t', '<C-k>', '<cmd>wincmd k<CR>')
 vim.keymap.set('t', '<C-l>', '<C-l><cmd>wincmd l<CR>')
 
 vim.keymap.set('n', '<leader>t', ':set wrap!<cr><C-L>')
-vim.keymap.set('n', '<leader>l', ':noh<cr><C-L>')
+vim.keymap.set('n', '<leader>l', ':nohlsearch<cr><C-L>')
 vim.keymap.set('', '<leader>z', ':%y<cr>')
 
 vim.keymap.set('n', 'zz', 'zz4<c-e>')
-vim.keymap.set('n', '<C-d>', '<C-d>zz')
-vim.keymap.set('n', '<C-u>', '<C-u>zz')
-vim.keymap.set('n', 'n', 'nzzzvzz')
-vim.keymap.set('n', 'N', 'Nzzzvzz')
+vim.keymap.set('n', 'Z', 'zz4<c-e>')
+vim.keymap.set('n', '<C-d>', '<C-d>zz4<c-e>')
+vim.keymap.set('n', '<C-u>', '<C-u>zz4<c-e>')
+vim.keymap.set('n', 'n', 'nzzzvzz4<c-e>')
+vim.keymap.set('n', 'N', 'Nzzzvzz4<c-e>')
 
 vim.keymap.set('t', '<c-q>', '<cmd>:q!<cr>')
 
