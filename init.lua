@@ -138,6 +138,44 @@ require('lazy').setup({
                     })
                 end,
             },
+            {
+                '<leader>fe',
+                function()
+                    local actions = require('telescope.actions')
+                    local action_state = require('telescope.actions.state')
+                    local finders = require('telescope.finders')
+                    local pickers = require('telescope.pickers')
+                    local sorters = require('telescope.sorters')
+
+                    local lines =
+                        vim.split(vim.fn.system("cliphist list | awk '{print substr($0, index($0, $2))}'"), '\n')
+                    local opts = {
+                        prompt_title = 'Cliphist',
+                        finder = finders.new_table({
+                            results = lines,
+                        }),
+                        sorter = sorters.get_generic_fuzzy_sorter(),
+                        attach_mappings = function(_, map)
+                            function os.capture(cmd)
+                                local f = assert(io.popen(cmd, 'r'))
+                                local s = assert(f:read('*a'))
+                                f:close()
+                                return s
+                            end
+                            local function decode_and_paste(prompt_bufnr)
+                                local selection = action_state.get_selected_entry(prompt_bufnr)
+                                actions.close(prompt_bufnr)
+                                if selection then vim.fn.setreg('+', selection.value) end
+                            end
+                            map('i', '<CR>', decode_and_paste)
+                            map('n', '<CR>', decode_and_paste)
+                            return true
+                        end,
+                    }
+
+                    pickers.new(opts, {}):find()
+                end,
+            },
         },
     },
     {
