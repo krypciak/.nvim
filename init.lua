@@ -552,6 +552,15 @@ vim.keymap.set('n', 'N', 'Nzzzvzz4<c-e>')
 
 vim.keymap.set('t', '<c-q>', '<cmd>:q!<cr>')
 
+-- spelling stuff
+vim.opt.spelllang = 'en_us'
+vim.opt.spell = false
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'markdown',
+    callback = function() vim.opt_local.spell = true end,
+})
+vim.keymap.set('', '<leader>p', ':setlocal spell!<cr>')
+
 -- python
 vim.api.nvim_create_autocmd('FileType', {
     pattern = 'python',
