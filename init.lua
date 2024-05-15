@@ -118,6 +118,7 @@ require('lazy').setup({
     { -- telescope
         'nvim-telescope/telescope.nvim',
         dependencies = { 'nvim-telescope/telescope-fzf-native.nvim' },
+        lazy = false,
         opts = {},
         setup = function(_, opts)
             local telescope = require('telescope')
@@ -743,6 +744,12 @@ require('lazy').setup({
             { '[t', function() require('todo-comments').jump_prev() end, { desc = 'Previous todo comment' } },
         },
     },
+    {
+        'iamcco/markdown-preview.nvim',
+        cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+        ft = { 'markdown' },
+        build = function() vim.fn['mkdp#util#install']() end,
+    },
     -- LSP's
     { -- typescript-tools
         'pmizio/typescript-tools.nvim',
@@ -751,7 +758,7 @@ require('lazy').setup({
     },
 }, {})
 
-function Format() require('conform').format({ lsp_fallback = true, async = true }) end
+function Format() require('conform').format({ lsp_fallback = true }) end
 
 vim.keymap.set('n', '[d', function()
     vim.diagnostic.goto_prev()
@@ -916,16 +923,6 @@ vim.api.nvim_create_autocmd('FileType', {
 vim.api.nvim_create_autocmd('FileType', {
     pattern = 'javascript',
     callback = function() vim.keymap.set('n', '<leader>m', "mn?ig.module<CR>:noh<CR>yi'`n:echo @+<CR>") end,
-})
-
-vim.api.nvim_create_autocmd('FileType', {
-    pattern = 'markdown',
-    callback = function()
-        -- TODO:
-        -- vim.cmd([[
-        --     command! Preview :CocCommand markdown-preview-enhanced.openPreview
-        -- ]])
-    end,
 })
 
 vim.api.nvim_create_autocmd('BufRead', {
