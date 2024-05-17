@@ -337,6 +337,7 @@ require('lazy').setup({
                 typescript = { 'prettierd', 'prettier' },
                 json = { 'jsonprettierd' },
                 sh = { 'shfmt' },
+                python = { 'black' },
             },
             notify_on_error = true,
             ignore_errors = false,
@@ -427,7 +428,7 @@ require('lazy').setup({
                     --
                     -- When you move your cursor, the highlights will be cleared (the second autocommand).
                     -- todo
-                    -- local client = vim.lsp.get_client_by_id(event.data.client_id)
+                    local client = vim.lsp.get_client_by_id(event.data.client_id)
                     -- if client and client.server_capabilities.documentHighlightProvider then
                     --     local highlight_augroup =
                     --         vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
@@ -456,14 +457,13 @@ require('lazy').setup({
                     -- code, if the language server you are using supports them
                     --
                     -- This may be unwanted, since they displace some of your code
-                    -- todo
-                    -- if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
-                    --     map(
-                    --         '<leader>th',
-                    --         function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
-                    --         '[T]oggle Inlay [H]ints'
-                    --     )
-                    -- end
+                    if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
+                        map(
+                            '<leader>th',
+                            function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
+                            'Toggle Inlay Hints'
+                        )
+                    end
                 end,
             })
 
@@ -507,6 +507,43 @@ require('lazy').setup({
                         },
                     },
                 },
+                tsserver = {
+                    settings = {
+                        typescript = {
+                            inlayHints = {
+                                includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all'
+                                includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+                                includeInlayVariableTypeHints = true,
+                                includeInlayFunctionParameterTypeHints = true,
+                                includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+                                includeInlayPropertyDeclarationTypeHints = true,
+                                includeInlayFunctionLikeReturnTypeHints = true,
+                                includeInlayEnumMemberValueHints = true,
+                            },
+                        },
+                        javascript = {
+                            inlayHints = {
+                                includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all'
+                                includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+                                includeInlayVariableTypeHints = true,
+
+                                includeInlayFunctionParameterTypeHints = true,
+                                includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+                                includeInlayPropertyDeclarationTypeHints = true,
+                                includeInlayFunctionLikeReturnTypeHints = true,
+                                includeInlayEnumMemberValueHints = true,
+                            },
+                        },
+                    },
+                },
+                jsonls = {
+                    settings = {
+                        json = {
+                            schemas = require('schemastore').json.schemas(),
+                            validate = { enable = true },
+                        },
+                    },
+                },
             }
 
             -- Ensure the servers and tools above are installed
@@ -539,7 +576,6 @@ require('lazy').setup({
             })
         end,
     },
-
     { -- nvim-cmp
         'hrsh7th/nvim-cmp',
         event = 'InsertEnter',
@@ -752,9 +788,14 @@ require('lazy').setup({
     },
     -- LSP's
     { -- typescript-tools
-        'pmizio/typescript-tools.nvim',
+        -- TODO: Revert
+        'notomo/typescript-tools.nvim',
+        branch = 'fix-deprecated',
         dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
         opts = {},
+    },
+    {
+        'b0o/SchemaStore.nvim',
     },
 }, {})
 
@@ -830,7 +871,7 @@ vim.keymap.set('t', '<C-j>', '<cmd>wincmd j<CR>')
 vim.keymap.set('t', '<C-k>', '<cmd>wincmd k<CR>')
 vim.keymap.set('t', '<C-l>', '<C-l><cmd>wincmd l<CR>')
 
-vim.keymap.set('n', '<leader>t', ':set wrap!<cr><C-L>')
+vim.keymap.set('n', '<leader>tw', ':set wrap!<cr><C-L>')
 vim.keymap.set('n', '<leader>l', ':nohlsearch<cr><C-L>')
 vim.keymap.set('', '<leader>z', ':%y<cr>')
 
