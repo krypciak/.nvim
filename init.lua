@@ -335,9 +335,12 @@ require('lazy').setup({
                 lua = { 'stylua' },
                 javascript = { 'prettierd', 'prettier' },
                 typescript = { 'prettierd', 'prettier' },
+                html = { 'prettierd', 'prettier' },
+                css = { 'prettierd', 'prettier' },
                 json = { 'jsonprettierd' },
                 sh = { 'shfmt' },
                 python = { 'black' },
+                kotlin = { 'ktfmt' },
             },
             notify_on_error = true,
             ignore_errors = false,
@@ -883,6 +886,9 @@ vim.keymap.set('n', 'n', 'nzzzvzz4<c-e>')
 vim.keymap.set('n', 'N', 'Nzzzvzz4<c-e>')
 vim.keymap.set('n', '<c-o>', '<c-o>zz4<c-e>')
 vim.keymap.set('n', '<c-i>', '<c-i>zz4<c-e>')
+
+vim.keymap.set('n', '[s', '[szz4<c-e>')
+vim.keymap.set('n', ']s', ']szz4<c-e>')
 
 vim.keymap.set('t', '<c-q>', '<cmd>:q!<cr>')
 
