@@ -510,35 +510,35 @@ require('lazy').setup({
                         },
                     },
                 },
-                tsserver = {
-                    settings = {
-                        typescript = {
-                            inlayHints = {
-                                includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all'
-                                includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-                                includeInlayVariableTypeHints = true,
-                                includeInlayFunctionParameterTypeHints = true,
-                                includeInlayVariableTypeHintsWhenTypeMatchesName = true,
-                                includeInlayPropertyDeclarationTypeHints = true,
-                                includeInlayFunctionLikeReturnTypeHints = true,
-                                includeInlayEnumMemberValueHints = true,
-                            },
-                        },
-                        javascript = {
-                            inlayHints = {
-                                includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all'
-                                includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-                                includeInlayVariableTypeHints = true,
-
-                                includeInlayFunctionParameterTypeHints = true,
-                                includeInlayVariableTypeHintsWhenTypeMatchesName = true,
-                                includeInlayPropertyDeclarationTypeHints = true,
-                                includeInlayFunctionLikeReturnTypeHints = true,
-                                includeInlayEnumMemberValueHints = true,
-                            },
-                        },
-                    },
-                },
+                -- tsserver = {
+                --     settings = {
+                --         typescript = {
+                --             inlayHints = {
+                --                 includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all'
+                --                 includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+                --                 includeInlayVariableTypeHints = true,
+                --                 includeInlayFunctionParameterTypeHints = true,
+                --                 includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+                --                 includeInlayPropertyDeclarationTypeHints = true,
+                --                 includeInlayFunctionLikeReturnTypeHints = true,
+                --                 includeInlayEnumMemberValueHints = true,
+                --             },
+                --         },
+                --         javascript = {
+                --             inlayHints = {
+                --                 includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all'
+                --                 includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+                --                 includeInlayVariableTypeHints = true,
+                --
+                --                 includeInlayFunctionParameterTypeHints = true,
+                --                 includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+                --                 includeInlayPropertyDeclarationTypeHints = true,
+                --                 includeInlayFunctionLikeReturnTypeHints = true,
+                --                 includeInlayEnumMemberValueHints = true,
+                --             },
+                --         },
+                --     },
+                -- },
                 jsonls = {
                     settings = {
                         json = {
@@ -791,9 +791,7 @@ require('lazy').setup({
     },
     -- LSP's
     { -- typescript-tools
-        -- TODO: Revert
         'notomo/typescript-tools.nvim',
-        branch = 'fix-deprecated',
         dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
         opts = {},
     },
