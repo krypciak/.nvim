@@ -5,7 +5,7 @@ vim.opt.breakindent = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.updatetime = 250
-vim.opt.timeoutlen = 300
+vim.opt.timeoutlen = 700
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.inccommand = 'split'
@@ -117,12 +117,17 @@ require('lazy').setup({
     'itchyny/lightline.vim',
     { -- telescope
         'nvim-telescope/telescope.nvim',
-        dependencies = { 'nvim-telescope/telescope-fzf-native.nvim' },
+        dependencies = { 'nvim-telescope/telescope-fzf-native.nvim', 'debugloop/telescope-undo.nvim' },
         lazy = false,
-        opts = {},
+        opts = {
+            extensions = {
+                undo = {},
+            },
+        },
         setup = function(_, opts)
             local telescope = require('telescope')
             telescope.load_extension('fzf')
+            telescope.load_extension('undo')
             telescope.setup(opts)
         end,
         keys = {
@@ -139,44 +144,46 @@ require('lazy').setup({
                     })
                 end,
             },
-            {
-                '<leader>fe',
-                function()
-                    local actions = require('telescope.actions')
-                    local action_state = require('telescope.actions.state')
-                    local finders = require('telescope.finders')
-                    local pickers = require('telescope.pickers')
-                    local sorters = require('telescope.sorters')
+            { '<leader>fu', '<cmd>Telescope undo<cr>' },
 
-                    local lines =
-                        vim.split(vim.fn.system("cliphist list | awk '{print substr($0, index($0, $2))}'"), '\n')
-                    local opts = {
-                        prompt_title = 'Cliphist',
-                        finder = finders.new_table({
-                            results = lines,
-                        }),
-                        sorter = sorters.get_generic_fuzzy_sorter(),
-                        attach_mappings = function(_, map)
-                            function os.capture(cmd)
-                                local f = assert(io.popen(cmd, 'r'))
-                                local s = assert(f:read('*a'))
-                                f:close()
-                                return s
-                            end
-                            local function decode_and_paste(prompt_bufnr)
-                                local selection = action_state.get_selected_entry(prompt_bufnr)
-                                actions.close(prompt_bufnr)
-                                if selection then vim.fn.setreg('+', selection.value) end
-                            end
-                            map('i', '<CR>', decode_and_paste)
-                            map('n', '<CR>', decode_and_paste)
-                            return true
-                        end,
-                    }
-
-                    pickers.new(opts, {}):find()
-                end,
-            },
+            -- {
+            --     '<leader>fe',
+            --     function()
+            --         local actions = require('telescope.actions')
+            --         local action_state = require('telescope.actions.state')
+            --         local finders = require('telescope.finders')
+            --         local pickers = require('telescope.pickers')
+            --         local sorters = require('telescope.sorters')
+            --
+            --         local lines =
+            --             vim.split(vim.fn.system("cliphist list | awk '{print substr($0, index($0, $2))}'"), '\n')
+            --         local opts = {
+            --             prompt_title = 'Cliphist',
+            --             finder = finders.new_table({
+            --                 results = lines,
+            --             }),
+            --             sorter = sorters.get_generic_fuzzy_sorter(),
+            --             attach_mappings = function(_, map)
+            --                 function os.capture(cmd)
+            --                     local f = assert(io.popen(cmd, 'r'))
+            --                     local s = assert(f:read('*a'))
+            --                     f:close()
+            --                     return s
+            --                 end
+            --                 local function decode_and_paste(prompt_bufnr)
+            --                     local selection = action_state.get_selected_entry(prompt_bufnr)
+            --                     actions.close(prompt_bufnr)
+            --                     if selection then vim.fn.setreg('+', selection.value) end
+            --                 end
+            --                 map('i', '<CR>', decode_and_paste)
+            --                 map('n', '<CR>', decode_and_paste)
+            --                 return true
+            --             end,
+            --         }
+            --
+            --         pickers.new(opts, {}):find()
+            --     end,
+            -- },
         },
     },
     { -- telescope-fzf-native
@@ -285,10 +292,6 @@ require('lazy').setup({
             },
         },
     },
-    { -- undotree
-        'sanfusu/neovim-undotree',
-        keys = { { '<leader>u', '<cmd>UndotreeToggle<cr>' } },
-    },
     { -- harpoon
         'ThePrimeagen/harpoon',
         branch = 'harpoon2',
@@ -359,9 +362,9 @@ require('lazy').setup({
         },
         keys = {
             {
-                '\\f',
+                '<leader>gf',
                 function() Format() end,
-                mode = { 'n', 'v', 'i' },
+                mode = { 'n' },
                 desc = 'Format the current buffer',
             },
         },
@@ -548,7 +551,9 @@ require('lazy').setup({
                     },
                 },
             }
-
+            require('lspconfig').hls.setup({
+                filetypes = { 'haskell', 'lhaskell', 'cabal' },
+            })
             -- Ensure the servers and tools above are installed
             --  To check the current status of installed tools and/or manually install
             --  other tools, you can run
@@ -789,6 +794,13 @@ require('lazy').setup({
         ft = { 'markdown' },
         build = function() vim.fn['mkdp#util#install']() end,
     },
+    {
+        'elihunter173/dirbuf.nvim',
+        opts = {},
+        keys = {
+            { '<leader>i', '<cmd>Dirbuf<cr>' },
+        },
+    },
     -- LSP's
     { -- typescript-tools
         'notomo/typescript-tools.nvim',
@@ -825,22 +837,22 @@ vim.api.nvim_set_hl(0, 'Folded', { bg = '#242629' })
 vim.api.nvim_set_hl(0, 'UfoCursorFoldedLine', { bg = '#484d51' })
 
 -- Run/Compile keybinding
-vim.keymap.set('n', '<leader>j', function()
-    -- ftype = vim.bo.filetyp
-    -- if ftype == 'rust' then rust_run()
-    -- elseif ftype == 'python' then python_run()
-    -- elseif ftype == 'sh' then sh_run()
-    -- else print('Unsupported filetype: '.. ftype) end
-end)
-
--- Build keybinding
-vim.keymap.set('n', '<leader>k', function()
-    -- ftype = vim.bo.filetype
-    -- if ftype == 'rust' then rust_build()
-    -- elseif ftype == 'c' then c_build()
-    -- elseif ftype == 'cpp' then c_build()
-    -- else print('Unsupported filetype: '.. ftype) end
-end)
+-- vim.keymap.set('n', '<leader>j', function()
+--     -- ftype = vim.bo.filetyp
+--     -- if ftype == 'rust' then rust_run()
+--     -- elseif ftype == 'python' then python_run()
+--     -- elseif ftype == 'sh' then sh_run()
+--     -- else print('Unsupported filetype: '.. ftype) end
+-- end)
+--
+-- -- Build keybinding
+-- vim.keymap.set('n', '<leader>k', function()
+--     -- ftype = vim.bo.filetype
+--     -- if ftype == 'rust' then rust_build()
+--     -- elseif ftype == 'c' then c_build()
+--     -- elseif ftype == 'cpp' then c_build()
+--     -- else print('Unsupported filetype: '.. ftype) end
+-- end)
 
 -- d stands for delete not cut
 vim.keymap.set('n', 'x', '"_x')
@@ -872,8 +884,8 @@ vim.keymap.set('t', '<C-j>', '<cmd>wincmd j<CR>')
 vim.keymap.set('t', '<C-k>', '<cmd>wincmd k<CR>')
 vim.keymap.set('t', '<C-l>', '<C-l><cmd>wincmd l<CR>')
 
-vim.keymap.set('n', '<leader>tw', ':set wrap!<cr><C-L>')
-vim.keymap.set('n', '<leader>l', ':nohlsearch<cr><C-L>')
+vim.keymap.set('n', '<leader>tw', ':set wrap!<cr>', { silent = true })
+vim.keymap.set('n', '<leader>k', ':nohlsearch<cr>', { silent = true })
 vim.keymap.set('', '<leader>z', ':%y<cr>')
 
 vim.keymap.set('n', 'zz', 'zz4<c-e>')
