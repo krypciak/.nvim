@@ -26,13 +26,6 @@ vim.o.undodir = vim.fn.expand('$HOME/.cache/nvim/undo/')
 
 vim.opt.rtp:append('/usr/share/vim/vimfiles')
 
-vim.cmd([[
-augroup remember_folds
-  autocmd!
-  autocmd BufWinLeave *.* mkview
-  autocmd BufWinEnter *.* silent! loadview
-augroup END
-]])
 vim.cmd([[set viewoptions-=curdir]])
 
 vim.o.foldcolumn = '0'
@@ -71,7 +64,7 @@ vim.cmd([[
     set viewoptions-=options
     augroup remember_folds
         autocmd!
-        autocmd BufWinLeave *.* if &ft !=# 'help' | mkview | endif
+        autocmd BufWinLeave *.* if &ft !=# 'help' | silent! mkview | endif
         autocmd BufWinEnter *.* if &ft !=# 'help' | silent! loadview | endif
     augroup END
 ]])
@@ -113,6 +106,12 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local function get_git_toplevel()
+    local obj = vim.system({ 'git', 'rev-parse', '--show-toplevel' }, { text = true }):wait()
+    if string.len(obj.stderr) > 5 then return nil end
+    return string.sub(obj.stdout, 0, string.len(obj.stdout) - 1)
+end
+
 require('lazy').setup({
     'itchyny/lightline.vim',
     { -- telescope
@@ -131,9 +130,21 @@ require('lazy').setup({
             telescope.setup(opts)
         end,
         keys = {
-            { '<leader>fa', '<cmd>Telescope git_files show_untracked=true<cr>' },
+            {
+                '<leader>fa',
+                function()
+                    if get_git_toplevel() then
+                        require('telescope.builtin').git_files({ show_untracked = true })
+                    else
+                        require('telescope.builtin').find_files({})
+                    end
+                end,
+            },
             { '<leader>fA', '<cmd>Telescope find_files no_ignore=true no_ignore_parent=true<cr>' },
-            { '<leader>fs', '<cmd>Telescope live_grep<cr>' },
+            {
+                '<leader>fs',
+                function() require('telescope.builtin').live_grep({ cwd = get_git_toplevel() }) end,
+            },
             { '<leader>fd', '<cmd>Telescope current_buffer_fuzzy_find<cr>' },
             { '<leader>fg', '<cmd>Telescope git_bcommits<cr>' },
             {
@@ -973,6 +984,13 @@ vim.api.nvim_create_autocmd('FileType', {
             let @o='f:r=i ;l'
             let @p='^df.Ienum ;lf=xx100@o'
         ]])
+    end,
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'typescript',
+    callback = function()
+        vim.keymap.set('n', '<leader>tf', ':TSToolsRemoveUnusedImports<CR>:TSToolsAddMissingImports<CR>')
     end,
 })
 
