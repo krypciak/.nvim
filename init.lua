@@ -812,6 +812,85 @@ require('lazy').setup({
             { '<leader>i', '<cmd>Dirbuf<cr>' },
         },
     },
+    {
+        'mfussenegger/nvim-dap',
+        config = function()
+            local dap = require('dap')
+
+            dap.adapters.localdebug = {
+                type = 'executable',
+                command = './debug.sh',
+            }
+            dap.configurations.cpp = {
+                {
+                    name = 'Launch',
+                    type = 'localdebug',
+                    request = 'launch',
+                    cwd = '${workspaceFolder}',
+                    -- stopAtBeginningOfMainSubprogram = true,
+                },
+            }
+        end,
+        keys = {
+            { '<leader>aj', function() require('dap').continue() end },
+            { '<leader>ak', function() require('dap').step_over() end },
+            { '<leader>al', function() require('dap').step_into() end },
+            { '<leader>a;', function() require('dap').step_out() end },
+            { '<leader>ah', function() require('dap').toggle_breakpoint() end },
+        },
+    },
+    {
+        'rcarriga/nvim-dap-ui',
+        dependencies = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio' },
+        opts = {
+
+            layouts = {
+                {
+                    elements = {
+                        {
+                            id = 'scopes',
+                            size = 0.25,
+                        },
+                        {
+                            id = 'breakpoints',
+                            size = 0.25,
+                        },
+                        {
+                            id = 'stacks',
+                            size = 0.5,
+                        },
+                        -- {
+                        --     id = 'watches',
+                        --     size = 0.25,
+                        -- },
+                    },
+                    position = 'left',
+                    size = 40,
+                },
+                {
+                    elements = {
+                        {
+                            id = 'repl',
+                            size = 1,
+                        },
+                        -- {
+                        --     id = 'console',
+                        --     size = 0.5,
+                        -- },
+                    },
+                    position = 'right',
+                    size = 40,
+                },
+            },
+        },
+        config = function(_, opts)
+            local dap, dapui = require('dap'), require('dapui')
+            dapui.setup(opts)
+            dap.listeners.after.event_initialized['dapui_config'] = function() dapui.open() end
+            dap.listeners.before.event_terminated['dapui_config'] = function() dapui.close() end
+            dap.listeners.before.event_exited['dapui_config'] = function() dapui.close() end
+        end,
+    },
     -- LSP's
     { -- typescript-tools
         'notomo/typescript-tools.nvim',
@@ -827,11 +906,11 @@ function Format() require('conform').format({ lsp_fallback = true }) end
 
 vim.keymap.set('n', '[d', function()
     vim.diagnostic.goto_prev()
-    vim.cmd('normal! zz4<c-e>')
+    vim.cmd('normal! zz')
 end, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', function()
     vim.diagnostic.goto_next()
-    vim.cmd('normal! zz4<c-e>')
+    vim.cmd('normal! zz')
 end, { desc = 'Go to next diagnostic message' })
 
 vim.keymap.set('n', '<leader>h', vim.diagnostic.setloclist, { desc = 'Open diagnostic quickfix list' })
@@ -899,17 +978,15 @@ vim.keymap.set('n', '<leader>tw', ':set wrap!<cr>', { silent = true })
 vim.keymap.set('n', '<leader>k', ':nohlsearch<cr>', { silent = true })
 vim.keymap.set('', '<leader>z', ':%y<cr>')
 
-vim.keymap.set('n', 'zz', 'zz4<c-e>')
-vim.keymap.set('n', 'Z', 'zz4<c-e>')
-vim.keymap.set('n', '<C-d>', '<C-d>zz4<c-e>')
-vim.keymap.set('n', '<C-u>', '<C-u>zz4<c-e>')
-vim.keymap.set('n', 'n', 'nzzzvzz4<c-e>')
-vim.keymap.set('n', 'N', 'Nzzzvzz4<c-e>')
-vim.keymap.set('n', '<c-o>', '<c-o>zz4<c-e>')
-vim.keymap.set('n', '<c-i>', '<c-i>zz4<c-e>')
+vim.keymap.set('n', '<C-d>', '<C-d>zz')
+vim.keymap.set('n', '<C-u>', '<C-u>zz')
+vim.keymap.set('n', 'n', 'nzzzvzz')
+vim.keymap.set('n', 'N', 'Nzzzvzz')
+vim.keymap.set('n', '<c-o>', '<c-o>zz')
+vim.keymap.set('n', '<c-i>', '<c-i>zz')
 
-vim.keymap.set('n', '[s', '[szz4<c-e>')
-vim.keymap.set('n', ']s', ']szz4<c-e>')
+vim.keymap.set('n', '[s', '[szz')
+vim.keymap.set('n', ']s', ']szz')
 
 vim.keymap.set('t', '<c-q>', '<cmd>:q!<cr>')
 
