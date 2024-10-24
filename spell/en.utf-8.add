@@ -449,3 +449,14 @@ CCLoader2
 #npresssable
 unpresssable/!
 unpresssable
+submenu
+boolean
+option1
+myinfo
+myInfo
+myKeybinding
+enum
+eg
+replace
+replace
+substring
