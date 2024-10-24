@@ -870,24 +870,6 @@ vim.o.background = 'dark'
 vim.api.nvim_set_hl(0, 'Folded', { bg = '#242629' })
 vim.api.nvim_set_hl(0, 'UfoCursorFoldedLine', { bg = '#484d51' })
 
--- Run/Compile keybinding
--- vim.keymap.set('n', '<leader>j', function()
---     -- ftype = vim.bo.filetyp
---     -- if ftype == 'rust' then rust_run()
---     -- elseif ftype == 'python' then python_run()
---     -- elseif ftype == 'sh' then sh_run()
---     -- else print('Unsupported filetype: '.. ftype) end
--- end)
---
--- -- Build keybinding
--- vim.keymap.set('n', '<leader>k', function()
---     -- ftype = vim.bo.filetype
---     -- if ftype == 'rust' then rust_build()
---     -- elseif ftype == 'c' then c_build()
---     -- elseif ftype == 'cpp' then c_build()
---     -- else print('Unsupported filetype: '.. ftype) end
--- end)
-
 -- d stands for delete not cut
 vim.keymap.set('n', 'x', '"_x')
 vim.keymap.set('n', 'X', '"_X')
