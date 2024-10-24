@@ -237,7 +237,7 @@ require('lazy').setup({
         lazy = false,
         dependencies = { 'kevinhwang91/promise-async' },
         opts = {
-            open_fold_hl_timeout = 0,
+            open_fold_hl_timeout = 150,
             fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
                 local newVirtText = {}
                 local suffix = (' 󰁂 %d '):format(endLnum - lnum)
