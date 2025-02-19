@@ -210,7 +210,14 @@ require('lazy').setup({
             sync_install = false,
             markid = { enable = true },
             auto_install = true,
-            indent = { enable = true },
+            indent = {
+                enable = true,
+                disable = function(_, buf)
+                    local max_filesize = 3 * 1024 * 1024 -- 3 MB
+                    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+                    if ok and stats and stats.size > max_filesize then return true end
+                end,
+            },
 
             highlight = {
                 enable = true,
@@ -483,6 +490,10 @@ require('lazy').setup({
                 end,
             })
 
+            local mason_registry = require('mason-registry')
+            local vue_language_server_path = mason_registry.get_package('vue-language-server'):get_install_path()
+                .. '/node_modules/@vue/language-server'
+
             local capabilities = vim.lsp.protocol.make_client_capabilities()
             capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
@@ -512,6 +523,18 @@ require('lazy').setup({
                             validate = { enable = true },
                         },
                     },
+                },
+                ts_ls = {
+                    init_options = {
+                        plugins = {
+                            {
+                                name = '@vue/typescript-plugin',
+                                location = vue_language_server_path,
+                                languages = { 'vue' },
+                            },
+                        },
+                    },
+                    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
                 },
             }
             require('lspconfig').hls.setup({
@@ -743,20 +766,20 @@ require('lazy').setup({
             { '[t', function() require('todo-comments').jump_prev() end, { desc = 'Previous todo comment' } },
         },
     },
-    {
+    { -- markdown-preview
         'iamcco/markdown-preview.nvim',
         cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
         ft = { 'markdown' },
         build = function() vim.fn['mkdp#util#install']() end,
     },
-    {
+    { -- difbuf
         'elihunter173/dirbuf.nvim',
         opts = {},
         keys = {
             { '<leader>i', '<cmd>Dirbuf<cr>' },
         },
     },
-    {
+    { -- dap
         'mfussenegger/nvim-dap',
         config = function()
             local dap = require('dap')
@@ -783,7 +806,7 @@ require('lazy').setup({
             { '<leader>ah', function() require('dap').toggle_breakpoint() end },
         },
     },
-    {
+    { -- dap-ui
         'rcarriga/nvim-dap-ui',
         dependencies = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio' },
         opts = {
@@ -841,7 +864,7 @@ require('lazy').setup({
         dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
         opts = {},
     },
-    {
+    { -- SchemaStore
         'b0o/SchemaStore.nvim',
     },
 }, {})
