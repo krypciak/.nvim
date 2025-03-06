@@ -524,18 +524,6 @@ require('lazy').setup({
                         },
                     },
                 },
-                ts_ls = {
-                    init_options = {
-                        plugins = {
-                            {
-                                name = '@vue/typescript-plugin',
-                                location = vue_language_server_path,
-                                languages = { 'vue' },
-                            },
-                        },
-                    },
-                    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
-                },
             }
             require('lspconfig').hls.setup({
                 filetypes = { 'haskell', 'lhaskell', 'cabal' },
@@ -591,12 +579,16 @@ require('lazy').setup({
             local cmp = require('cmp')
             -- local luasnip = require('luasnip')
             -- luasnip.config.setup({})
-
+            require('cmp').setup.filetype('cpp', {
+                enabled = false,
+            })
             cmp.setup({
                 -- snippet = {
                 --     expand = function(args) luasnip.lsp_expand(args.body) end,
                 -- },
-                completion = { completeopt = 'menu,menuone,noinsert' },
+                completion = {
+                    completeopt = 'menu,menuone,noinsert',
+                },
 
                 -- For an understanding of why these mappings were
                 -- chosen, you will need to read `:help ins-completion`
