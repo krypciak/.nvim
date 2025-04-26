@@ -47,7 +47,6 @@ vim.cmd([[
     highlight CursorLine ctermbg=235
 
     set ff=unix
-    set redrawtime=0
 ]])
 
 -- Return to last edit position when opening files
