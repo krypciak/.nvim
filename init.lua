@@ -411,6 +411,11 @@ require('lazy').setup({
                     --  This is where a variable was first declared, or where a function is defined, etc.
                     --  To jump back, press <C-t>.
                     map('<leader>gd', require('telescope.builtin').lsp_definitions, 'goto definition')
+                    map(
+                        '<leader>gD',
+                        function() require('telescope.builtin').lsp_definitions({ jump_type = 'never' }) end,
+                        'goto definition'
+                    )
 
                     map('<leader>gs', require('telescope.builtin').lsp_references, 'goto references')
 
@@ -442,7 +447,7 @@ require('lazy').setup({
                     map('<leader>s', vim.lsp.buf.rename, 'rename')
                     map('<leader>ca', vim.lsp.buf.code_action, 'code action')
                     map('K', vim.lsp.buf.hover, 'Hover Documentation')
-                    map('<leader>gD', vim.lsp.buf.declaration, 'goto declaration')
+                    -- map('<leader>gD', vim.lsp.buf.declaration, 'goto declaration')
 
                     -- The following two autocommands are used to highlight references of the
                     -- word under your cursor when your cursor rests there for a little while.
@@ -558,6 +563,29 @@ require('lazy').setup({
                         require('lspconfig')[server_name].setup(server)
                     end,
                 },
+            })
+        end,
+    },
+    { -- nvim-lint
+        'mfussenegger/nvim-lint',
+        lazy = true,
+        event = { 'BufReadPre', 'BufNewFile' },
+        config = function()
+            vim.env.ESLINT_D_PPID = vim.fn.getpid()
+            vim.env.ESLINT_D_MISS = 'ignore'
+            local lint = require('lint')
+
+            lint.linters_by_ft = {
+                javascript = { 'eslint_d' },
+                typescript = { 'eslint_d' },
+                -- python = { 'pylint' },
+            }
+
+            local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
+
+            vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
+                group = lint_augroup,
+                callback = function() lint.try_lint() end,
             })
         end,
     },
