@@ -298,15 +298,15 @@ require('lazy').setup({
             { 'zm', function() require('ufo').closeFoldsWith() end },
             { 'zR', function() require('ufo').openAllFolds() end },
             { 'zM', function() end },
-            {
-                'L',
-                function()
-                    -- todo
-                    local winid = require('ufo').peekFoldedLinesUnderCursor()
-                    -- if not winid then vim.fn.CocActionAsync('definitionHover')
-                    -- end
-                end,
-            },
+            -- {
+            --     'L',
+            --     function()
+            --         -- todo
+            --         -- local winid = require('ufo').peekFoldedLinesUnderCursor()
+            --         -- if not winid then vim.fn.CocActionAsync('definitionHover')
+            --         -- end
+            --     end,
+            -- },
         },
     },
     { -- harpoon
@@ -495,9 +495,9 @@ require('lazy').setup({
                 end,
             })
 
-            local mason_registry = require('mason-registry')
-            local vue_language_server_path = mason_registry.get_package('vue-language-server'):get_install_path()
-                .. '/node_modules/@vue/language-server'
+            -- local mason_registry = require('mason-registry')
+            -- local vue_language_server_path = mason_registry.get_package('vue-language-server'):get_install_path()
+            --     .. '/node_modules/@vue/language-server'
 
             local capabilities = vim.lsp.protocol.make_client_capabilities()
             capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
@@ -554,6 +554,8 @@ require('lazy').setup({
             require('mason-tool-installer').setup({ ensure_installed = ensure_installed })
 
             require('mason-lspconfig').setup({
+                ensure_installed = {},
+                automatic_installation = true,
                 handlers = {
                     function(server_name)
                         local server = servers[server_name] or {}
@@ -570,6 +572,7 @@ require('lazy').setup({
     { -- nvim-lint
         'mfussenegger/nvim-lint',
         lazy = true,
+        enabled = false,
         event = { 'BufReadPre', 'BufNewFile' },
         config = function()
             vim.env.ESLINT_D_PPID = vim.fn.getpid()
@@ -904,15 +907,15 @@ require('lazy').setup({
 function Format() require('conform').format({ lsp_fallback = true }) end
 
 vim.keymap.set('n', '[d', function()
-    vim.diagnostic.goto_prev()
+    vim.diagnostic.jump({ count = -1, float = true })
     vim.cmd('normal! zz')
 end, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', function()
-    vim.diagnostic.goto_next()
+    vim.diagnostic.jump({ count = 1, float = true })
     vim.cmd('normal! zz')
 end, { desc = 'Go to next diagnostic message' })
 
-vim.keymap.set('n', '<leader>h', vim.diagnostic.setloclist, { desc = 'Open diagnostic quickfix list' })
+vim.keymap.set('n', '<leader>h', require('telescope.builtin').diagnostics, { desc = 'Open diagnostic quickfix list' })
 
 -- Highlight when yanking (copying) text
 vim.api.nvim_create_autocmd('TextYankPost', {
