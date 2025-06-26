@@ -524,7 +524,7 @@ require('lazy').setup({
                 jsonls = {
                     settings = {
                         json = {
-                            schemas = require('schemastore').json.schemas({}),
+                            schemas = require('schemastore').json.schemas(),
                             validate = { enable = true },
                         },
                     },
@@ -541,10 +541,10 @@ require('lazy').setup({
                         },
                     },
                 },
+                hls = {
+                    filetypes = { 'haskell', 'lhaskell', 'cabal' },
+                },
             }
-            require('lspconfig').hls.setup({
-                filetypes = { 'haskell', 'lhaskell', 'cabal' },
-            })
             require('mason').setup()
 
             local ensure_installed = vim.tbl_keys(servers or {})
@@ -553,19 +553,15 @@ require('lazy').setup({
             })
             require('mason-tool-installer').setup({ ensure_installed = ensure_installed })
 
+            for server_name, server in pairs(servers) do
+                server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+                require('lspconfig')[server_name].setup(server)
+            end
+
             require('mason-lspconfig').setup({
                 ensure_installed = {},
+                automatic_enable = {},
                 automatic_installation = true,
-                handlers = {
-                    function(server_name)
-                        local server = servers[server_name] or {}
-                        -- This handles overriding only values explicitly passed
-                        -- by the server configuration above. Useful when disabling
-                        -- certain features of an LSP (for example, turning off formatting for tsserver)
-                        server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-                        require('lspconfig')[server_name].setup(server)
-                    end,
-                },
             })
         end,
     },
