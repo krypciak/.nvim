@@ -361,6 +361,7 @@ require('lazy').setup({
                 sh = { 'shfmt' },
                 python = { 'black' },
                 kotlin = { 'ktfmt' },
+                zig = { 'zigfmt' },
             },
             notify_on_error = true,
             ignore_errors = false,
