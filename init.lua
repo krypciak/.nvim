@@ -545,9 +545,9 @@ require('lazy').setup({
                 hls = {
                     filetypes = { 'haskell', 'lhaskell', 'cabal' },
                 },
-                zls = {
-
-                }
+                zls = {},
+                jdtls = {},
+                yamlls = {},
             }
             require('mason').setup()
 
