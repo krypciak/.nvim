@@ -32,8 +32,14 @@ vim.o.foldcolumn = '0'
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
-vim.opt.foldmethod = 'expr'
-vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.opt.foldmethod = 'indent'
+-- vim.opt.foldmethod = 'expr'
+-- vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+
+local function is_big_file(bufnr)
+    -- print(vim.api.nvim_buf_line_count(bufnr))
+    return vim.api.nvim_buf_line_count(bufnr) > 10000
+end
 
 vim.cmd([[
     :highlight Folded ctermbg=237
@@ -212,21 +218,16 @@ require('lazy').setup({
             auto_install = true,
             indent = {
                 enable = true,
-                disable = function(_, buf)
-                    local max_filesize = 3 * 1024 * 1024 -- 3 MB
-                    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-                    if ok and stats and stats.size > max_filesize then return true end
-                end,
+                disable = function(_, bufnr) return is_big_file(bufnr) end,
             },
-
             highlight = {
                 enable = true,
-                disable = function(_, buf)
-                    local max_filesize = 3 * 1024 * 1024 -- 3 MB
-                    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-                    if ok and stats and stats.size > max_filesize then return true end
-                end,
+                disable = function(_, bufnr) return is_big_file(bufnr) end,
                 additional_vim_regex_highlighting = false,
+            },
+            fold = {
+                enable = false,
+                disable = function(_, bufnr) return is_big_file(bufnr) end,
             },
         },
         config = function(_, opts)
@@ -548,6 +549,10 @@ require('lazy').setup({
                 zls = {},
                 jdtls = {},
                 yamlls = {},
+                bashls = {
+                    cmd = { 'bash-language-server', 'start' },
+                    filetypes = { 'bash', 'sh' },
+                },
             }
             require('mason').setup()
 
@@ -790,7 +795,14 @@ require('lazy').setup({
         end,
     },
     { 'numToStr/Comment.nvim', opts = {} },
-    { 'hiphish/rainbow-delimiters.nvim' },
+    {
+        'hiphish/rainbow-delimiters.nvim',
+        config = function()
+            require('rainbow-delimiters.setup').setup({
+                condition = function(bufnr) return not is_big_file(bufnr) end,
+            })
+        end,
+    },
     { -- todo-comments
         'folke/todo-comments.nvim',
         dependencies = { 'nvim-lua/plenary.nvim' },
