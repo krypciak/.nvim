@@ -37,8 +37,7 @@ vim.opt.foldmethod = 'indent'
 -- vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
 
 local function is_big_file(bufnr)
-    -- print(vim.api.nvim_buf_line_count(bufnr))
-    return vim.api.nvim_buf_line_count(bufnr) > 10000
+    return vim.api.nvim_buf_line_count(bufnr) > 20000 or #vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] > 5000
 end
 
 vim.cmd([[
@@ -564,7 +563,8 @@ require('lazy').setup({
 
             for server_name, server in pairs(servers) do
                 server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-                require('lspconfig')[server_name].setup(server)
+                vim.lsp.enable(server_name)
+                vim.lsp.config(server_name, server)
             end
 
             require('mason-lspconfig').setup({
