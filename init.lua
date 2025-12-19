@@ -552,6 +552,7 @@ require('lazy').setup({
                     cmd = { 'bash-language-server', 'start' },
                     filetypes = { 'bash', 'sh' },
                 },
+                julials = {},
             }
             require('mason').setup()
 
