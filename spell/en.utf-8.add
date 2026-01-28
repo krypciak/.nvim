@@ -527,3 +527,5 @@ vec
 loopName
 replacer
 worring
+activeStateIdx
+activeState
