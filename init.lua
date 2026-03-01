@@ -553,6 +553,7 @@ require('lazy').setup({
                     filetypes = { 'bash', 'sh' },
                 },
                 julials = {},
+                csharp_ls = {}
             }
             require('mason').setup()
 
