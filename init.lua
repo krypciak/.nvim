@@ -493,6 +493,11 @@ require('lazy').setup({
                             'Toggle Inlay Hints'
                         )
                     end
+
+                    -- Disable java lsp (jdtls) from providing its own (worse in my opinion) sytnax highlighting
+                    if client and client.name == 'jdtls' then
+                        client.server_capabilities.semanticTokensProvider = nil
+                    end
                 end,
             })
 
@@ -553,7 +558,8 @@ require('lazy').setup({
                     filetypes = { 'bash', 'sh' },
                 },
                 julials = {},
-                csharp_ls = {}
+                csharp_ls = {},
+                emmet_language_server = {},
             }
             require('mason').setup()
 
@@ -915,6 +921,9 @@ require('lazy').setup({
     },
     { -- SchemaStore
         'b0o/SchemaStore.nvim',
+    },
+    { -- Java lsp
+        'mfussenegger/nvim-jdtls',
     },
 }, {})
 
