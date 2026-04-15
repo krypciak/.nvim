@@ -38,14 +38,31 @@ vim.cmd([[set viewoptions-=curdir]])
 vim.o.undofile = true
 vim.o.undodir = vim.fn.expand('$HOME/.cache/nvim/undo/')
 
--- fold
-vim.o.foldcolumn = '0'
+-- fold (later set on treesitter attach)
+vim.o.foldenable = true
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
-vim.o.foldenable = true
-vim.opt.foldmethod = 'indent'
--- vim.opt.foldmethod = 'expr'
--- vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.opt.foldcolumn = '0'
+vim.opt.fillchars:append { fold = ' ' }
+
+vim.o.foldtext = ''
+
+vim.keymap.set('n', 'zr', 'zR')
+vim.keymap.set('n', 'zm', 'zM')
+
+-- vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+-- vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+
+-- Save opened folds
+-- vim.cmd([[
+--     set viewoptions-=curdir
+--     set viewoptions-=options
+--     augroup remember_folds
+--         autocmd!
+--         autocmd BufWinLeave *.* if &ft !=# 'help' | silent! mkview | endif
+--         autocmd BufWinEnter *.* if &ft !=# 'help' | silent! loadview | endif
+--     augroup END
+-- ]])
 
 local function is_big_file(bufnr)
     return vim.api.nvim_buf_line_count(bufnr) > 20000 or #vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] > 5000
@@ -68,17 +85,6 @@ vim.cmd([[
          \ if line("'\"") > 0 && line("'\"") <= line("$") |
          \   exe "normal! g`\"" |
          \ endif
-]])
-
--- Save opened folds
-vim.cmd([[
-    set viewoptions-=curdir
-    set viewoptions-=options
-    augroup remember_folds
-        autocmd!
-        autocmd BufWinLeave *.* if &ft !=# 'help' | silent! mkview | endif
-        autocmd BufWinEnter *.* if &ft !=# 'help' | silent! loadview | endif
-    augroup END
 ]])
 
 vim.cmd([[
@@ -328,8 +334,8 @@ require('lazy').setup({
 
                 -- enables treesitter based folds
                 -- for more info on folds see `:help folds`
-                -- vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-                -- vim.wo.foldmethod = 'expr'
+                vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+                vim.wo.foldmethod = 'expr'
 
                 -- check if treesitter indentation is available for this language, and if so enable it
                 -- in case there is no indent query, the indentexpr will fallback to the vim's built in one
@@ -370,6 +376,7 @@ require('lazy').setup({
     { -- ufo
         'kevinhwang91/nvim-ufo',
         lazy = false,
+        enabled = false,
         dependencies = { 'kevinhwang91/promise-async' },
         opts = {
             open_fold_hl_timeout = 150,
