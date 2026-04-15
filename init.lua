@@ -32,41 +32,44 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.g.have_nerd_font = true
 
-vim.cmd([[set viewoptions-=curdir]])
+local function is_big_file(bufnr)
+    return vim.api.nvim_buf_line_count(bufnr) > 20000 or #vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] > 5000
+end
 
--- undo
-vim.o.undofile = true
-vim.o.undodir = vim.fn.expand('$HOME/.cache/nvim/undo/')
-
--- fold (later set on treesitter attach)
+-- folds
 vim.o.foldenable = true
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.opt.foldcolumn = '0'
+vim.o.foldtext = ''
 vim.opt.fillchars:append { fold = ' ' }
 
-vim.o.foldtext = ''
+vim.opt.viewoptions = { 'folds', 'cursor' }
+vim.api.nvim_create_augroup('remember_folds', { clear = true })
+vim.api.nvim_create_autocmd('BufWinLeave', {
+    group = 'remember_folds',
+    callback = function()
+        if vim.bo.filetype == 'help' then return end
+        vim.cmd('silent! mkview')
+    end,
+})
+vim.api.nvim_create_autocmd('BufWinEnter', {
+    group = 'remember_folds',
+    callback = function(args)
+        if vim.bo.filetype == 'help' then return end
+        if is_big_file(args.buf) then
+            vim.defer_fn(function()
+                vim.schedule(function() vim.cmd('silent! loadview') end)
+            end, 1500)
+        else
+            vim.cmd('silent! loadview')
+        end
+    end,
+})
 
-vim.keymap.set('n', 'zr', 'zR')
-vim.keymap.set('n', 'zm', 'zM')
-
--- vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
--- vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-
--- Save opened folds
--- vim.cmd([[
---     set viewoptions-=curdir
---     set viewoptions-=options
---     augroup remember_folds
---         autocmd!
---         autocmd BufWinLeave *.* if &ft !=# 'help' | silent! mkview | endif
---         autocmd BufWinEnter *.* if &ft !=# 'help' | silent! loadview | endif
---     augroup END
--- ]])
-
-local function is_big_file(bufnr)
-    return vim.api.nvim_buf_line_count(bufnr) > 20000 or #vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] > 5000
-end
+-- undo
+vim.o.undofile = true
+vim.o.undodir = vim.fn.expand('$HOME/.cache/nvim/undo/')
 
 vim.api.nvim_set_hl(0, 'Folded', { ctermbg = 237 })
 vim.api.nvim_set_hl(0, 'Pmenu', { ctermbg = 233, ctermfg = 254 })
@@ -137,6 +140,9 @@ vim.keymap.set('', '<leader>e', '<cmd>wq<CR>')
 vim.keymap.set('v', ';;', '<esc>')
 vim.keymap.set('i', ';l', '<esc>')
 vim.keymap.set('t', ';l', '<C-\\><C-n>')
+
+vim.keymap.set('n', 'zr', 'zR')
+vim.keymap.set('n', 'zm', 'zM')
 
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
@@ -298,29 +304,6 @@ require('lazy').setup({
         lazy = false,
         branch = 'main',
         build = ':TSUpdate',
-        -- opts = {
-        --     ensure_installed = {},
-        --     sync_install = false,
-        --     markid = { enable = true },
-        --     auto_install = true,
-        --     indent = {
-        --         enable = true,
-        --         disable = function(_, bufnr) return is_big_file(bufnr) end,
-        --     },
-        --     highlight = {
-        --         enable = true,
-        --         disable = function(_, bufnr) return is_big_file(bufnr) end,
-        --         additional_vim_regex_highlighting = false,
-        --     },
-        --     fold = {
-        --         enable = false,
-        --         disable = function(_, bufnr) return is_big_file(bufnr) end,
-        --     },
-        -- },
-        -- config = function(_, opts)
-        --     require('nvim-treesitter.install').prefer_git = true
-        --     require('nvim-treesitter.configs').setup(opts)
-        -- end,
         config = function()
             require('nvim-treesitter').install { 'lua', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
 
@@ -373,76 +356,24 @@ require('lazy').setup({
     },
     { 'tpope/vim-surround' },
     { 'NMAC427/guess-indent.nvim', opts = {} },
-    { -- ufo
-        'kevinhwang91/nvim-ufo',
-        lazy = false,
-        enabled = false,
-        dependencies = { 'kevinhwang91/promise-async' },
+    { -- origami
+        'chrisgrieser/nvim-origami',
+        event = 'VeryLazy',
         opts = {
-            open_fold_hl_timeout = 150,
-            fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
-                local newVirtText = {}
-                local suffix = (' 󰁂 %d '):format(endLnum - lnum)
-                local sufWidth = vim.fn.strdisplaywidth(suffix)
-                local targetWidth = width - sufWidth
-                local curWidth = 0
-                for _, chunk in ipairs(virtText) do
-                    local chunkText = chunk[1]
-                    local chunkWidth = vim.fn.strdisplaywidth(chunkText)
-                    if targetWidth > curWidth + chunkWidth then
-                        table.insert(newVirtText, chunk)
-                    else
-                        chunkText = truncate(chunkText, targetWidth - curWidth)
-                        local hlGroup = chunk[2]
-                        table.insert(newVirtText, { chunkText, hlGroup })
-                        chunkWidth = vim.fn.strdisplaywidth(chunkText)
-                        -- str width returned from truncate() may less than 2nd argument, need padding
-                        if curWidth + chunkWidth < targetWidth then
-                            suffix = suffix .. (' '):rep(targetWidth - curWidth - chunkWidth)
-                        end
-                        break
-                    end
-                    curWidth = curWidth + chunkWidth
-                end
-                table.insert(newVirtText, { suffix, 'MoreMsg' })
-                return newVirtText
-            end,
-            preview = {
-                win_config = {
-                    border = { '', ' ', '', '', '', ' ', '', '' },
-                    winhighlight = 'Normal:Folded',
-                    winblend = 0,
+            useLspFoldsWithTreesitterFallback = {
+                enabled = false,
+            },
+            foldtext = {
+                padding = {
+                    width = 1,
                 },
-                mappings = {
-                    jumpTop = '[',
-                    jumpBot = ']',
+                lineCount = {
+                    template = '󰁂 %d',
+                    hlgroup = 'Title',
                 },
             },
-            provider_selector = function(_, _, _) return { 'treesitter', 'indent' } end,
         },
-        config = function(_, opts)
-            require('ufo').setup(opts)
-
-            vim.api.nvim_create_autocmd('FileType', {
-                pattern = { 'markdown' },
-                callback = function() require('ufo').detach() end,
-            })
-        end,
-        keys = {
-            { 'zr', function() require('ufo').openFoldsExceptKinds() end },
-            { 'zm', function() require('ufo').closeFoldsWith() end },
-            { 'zR', function() require('ufo').openAllFolds() end },
-            { 'zM', function() end },
-            -- {
-            --     'L',
-            --     function()
-            --         -- todo
-            --         -- local winid = require('ufo').peekFoldedLinesUnderCursor()
-            --         -- if not winid then vim.fn.CocActionAsync('definitionHover')
-            --         -- end
-            --     end,
-            -- },
-        },
+        init = function() end,
     },
     { 'nvim-tree/nvim-web-devicons', lazy = true },
     { -- conform
