@@ -372,6 +372,9 @@ require('lazy').setup({
                     hlgroup = 'Title',
                 },
             },
+            foldKeymaps = {
+                setup = false
+            },
         },
         init = function() end,
     },
