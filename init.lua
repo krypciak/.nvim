@@ -384,11 +384,11 @@ require('lazy').setup({
         opts = {
             formatters_by_ft = {
                 lua = { 'stylua' },
-                javascript = { 'prettierd', 'prettier' },
-                typescript = { 'prettierd', 'prettier' },
-                html = { 'prettierd', 'prettier' },
-                css = { 'prettierd', 'prettier' },
-                json = { 'jsonprettierd' },
+                javascript = { 'prettier' },
+                typescript = { 'prettier' },
+                html = { 'prettier' },
+                css = { 'prettier' },
+                json = { 'prettier' },
                 sh = { 'shfmt' },
                 python = { 'black' },
                 kotlin = { 'ktfmt' },
