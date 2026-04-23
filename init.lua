@@ -373,7 +373,7 @@ require('lazy').setup({
                 },
             },
             foldKeymaps = {
-                setup = false
+                setup = false,
             },
         },
         init = function() end,
