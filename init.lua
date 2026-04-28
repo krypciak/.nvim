@@ -810,6 +810,12 @@ require('lazy').setup({
             { '<leader>i', '<cmd>Dirbuf<CR>' },
         },
     },
+    {
+        'm4xshen/hardtime.nvim',
+        lazy = false,
+        dependencies = { 'MunifTanjim/nui.nvim' },
+        opts = {},
+    },
     -- language specific
     { -- lazydev.nvim
         'folke/lazydev.nvim',
