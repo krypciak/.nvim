@@ -778,7 +778,6 @@ require('lazy').setup({
             require('bamboo').load()
         end,
     },
-    { 'numToStr/Comment.nvim', opts = {} },
     { -- rainbow-delimiters
         'hiphish/rainbow-delimiters.nvim',
         config = function()
