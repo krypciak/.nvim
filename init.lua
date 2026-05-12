@@ -710,11 +710,18 @@ require('lazy').setup({
             -- signature = { enabled = true },
         },
     },
-    { -- mini.nvim
-        'nvim-mini/mini.nvim',
-        config = function()
-            --
-            require('mini.pairs').setup()
+    { -- autopairs
+        'windwp/nvim-autopairs',
+        dependencies = { 'hrsh7th/nvim-cmp' },
+        event = 'InsertEnter',
+        lazy = false,
+        priority = 1000,
+        opts = {
+            map_cr = true,
+        },
+        config = function(_, opts)
+            local autopairs = require('nvim-autopairs')
+            autopairs.setup(opts)
         end,
     },
 
