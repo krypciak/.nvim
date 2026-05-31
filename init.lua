@@ -4,7 +4,7 @@ vim.o.tabstop = 4
 vim.o.shiftwidth = 4
 vim.o.expandtab = true
 vim.o.mouse = 'a'
-vim.schedule(function() vim.o.clipboard = 'unnamedplus' end)
+vim.o.clipboard = 'unnamedplus'
 
 vim.wo.number = true
 
@@ -143,6 +143,7 @@ vim.keymap.set('t', ';l', '<C-\\><C-n>')
 
 vim.keymap.set('n', 'zr', 'zR')
 vim.keymap.set('n', 'zm', 'zM')
+vim.keymap.set('n', 'zj', 'zmzv')
 
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
@@ -340,9 +341,7 @@ require('lazy').setup({
                         treesitter_try_attach(buf, language)
                     elseif vim.tbl_contains(available_parsers, language) then
                         -- if a parser is available in `nvim-treesitter` auto install it, and enable it after the installation is done
-                        require('nvim-treesitter')
-                            .install(language)
-                            :await(function() treesitter_try_attach(buf, language) end)
+                        require('nvim-treesitter').install(language):await(function() treesitter_try_attach(buf, language) end)
                     else
                         -- try to enable treesitter features in case the parser exists but is not available from `nvim-treesitter`
                         treesitter_try_attach(buf, language)
@@ -430,9 +429,7 @@ require('lazy').setup({
             vim.api.nvim_create_autocmd('LspAttach', {
                 group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
                 callback = function(event)
-                    local map = function(keys, func, desc)
-                        vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
-                    end
+                    local map = function(keys, func, desc) vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc }) end
 
                     -- Jump to the definition of the word under your cursor.
                     --  This is where a variable was first declared, or where a function is defined, etc.
@@ -520,9 +517,7 @@ require('lazy').setup({
                     end
 
                     -- Disable java lsp (jdtls) from providing its own (worse in my opinion) sytnax highlighting
-                    if client and client.name == 'jdtls' then
-                        client.server_capabilities.semanticTokensProvider = nil
-                    end
+                    if client and client.name == 'jdtls' then client.server_capabilities.semanticTokensProvider = nil end
                 end,
             })
 
@@ -565,7 +560,7 @@ require('lazy').setup({
                         pylsp = {
                             plugins = {
                                 pycodestyle = {
-                                    ignore = { 'E261', 'E303', 'E302', 'E305' },
+                                    ignore = { 'E261', 'E303', 'E302', 'E305', 'W503' },
                                     maxLineLength = 200,
                                 },
                             },
@@ -825,7 +820,7 @@ require('lazy').setup({
             { '<leader>i', '<cmd>Dirbuf<CR>' },
         },
     },
-    {
+    { -- hardtime
         'm4xshen/hardtime.nvim',
         lazy = false,
         dependencies = { 'MunifTanjim/nui.nvim' },
@@ -956,9 +951,7 @@ vim.api.nvim_create_autocmd('FileType', {
 
 vim.api.nvim_create_autocmd('FileType', {
     pattern = 'typescript',
-    callback = function()
-        vim.keymap.set('n', '<leader>tf', '<cmd>TSToolsRemoveUnusedImports<CR><cmd>TSToolsAddMissingImports<CR>')
-    end,
+    callback = function() vim.keymap.set('n', '<leader>tf', '<cmd>TSToolsRemoveUnusedImports<CR><cmd>TSToolsAddMissingImports<CR>') end,
 })
 
 -- javascript
