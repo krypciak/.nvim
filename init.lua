@@ -143,7 +143,10 @@ vim.keymap.set('t', ';l', '<C-\\><C-n>')
 
 vim.keymap.set('n', 'zr', 'zR')
 vim.keymap.set('n', 'zm', 'zM')
-vim.keymap.set('n', 'zj', 'zmzv')
+vim.keymap.set('n', 'zj', function()
+    vim.cmd.normal('zm')
+    vim.cmd.normal('zv')
+end)
 
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
@@ -628,46 +631,21 @@ require('lazy').setup({
     },
     { -- blink.cmp
         'saghen/blink.cmp',
-        event = 'VimEnter',
-        version = '1.*',
+        -- event = 'VimEnter',
         dependencies = {
-            {
-                'L3MON4D3/LuaSnip',
-                version = '2.*',
-                build = (function()
-                    -- Build Step is needed for regex support in snippets.
-                    -- This step is not supported in many windows environments.
-                    -- Remove the below condition to re-enable on windows.
-                    if vim.fn.has('win32') == 1 or vim.fn.executable('make') == 0 then return end
-                    return 'make install_jsregexp'
-                end)(),
-                dependencies = {},
-                opts = {},
-            },
+            'saghen/blink.lib',
+            -- optional: provides snippets for the snippet source
+            'rafamadriz/friendly-snippets',
         },
+        build = function()
+            -- build the fuzzy matcher, optionally add a timeout to `pwait(timeout_ms)`
+            -- you can use `gb` in `:Lazy` to rebuild the plugin as needed
+            require('blink.cmp').build():pwait()
+        end,
+        ---@module 'blink.cmp'
+        ---@type blink.cmp.Config
         opts = {
             keymap = {
-                -- 'default' (recommended) for mappings similar to built-in completions
-                --   <c-y> to accept ([y]es) the completion.
-                --    This will auto-import if your LSP supports it.
-                --    This will expand snippets if the LSP sent a snippet.
-                -- 'super-tab' for tab to accept
-                -- 'enter' for enter to accept
-                -- 'none' for no mappings
-                --
-                -- For an understanding of why the 'default' preset is recommended,
-                -- you will need to read `:help ins-completion`
-                --
-                -- No, but seriously. Please read `:help ins-completion`, it is really good!
-                --
-                -- All presets have the following mappings:
-                -- <tab>/<s-tab>: move to right/left of your snippet expansion
-                -- <c-space>: Open menu or open docs if already open
-                -- <c-n>/<c-p> or <up>/<down>: Select next/previous item
-                -- <c-e>: Hide menu
-                -- <c-k>: Toggle signature help
-                --
-                -- See :h blink-cmp-config-keymap for defining your own keymap
                 preset = 'default',
 
                 ['<CR>'] = { 'accept', 'fallback' },
@@ -678,20 +656,40 @@ require('lazy').setup({
                 --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
             },
 
-            appearance = {
-                -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
-                -- Adjusts spacing to ensure icons are aligned
-                nerd_font_variant = 'mono',
-            },
-
+            -- (Default) Only show the documentation popup when manually triggered
             completion = {
-                -- By default, you may press `<c-space>` to show the documentation.
-                -- Optionally, set `auto_show = true` to show the documentation after a delay.
-                documentation = { auto_show = false, auto_show_delay_ms = 500 },
-
+                documentation = { auto_show = false },
                 accept = { auto_brackets = { enabled = true } },
+                menu = {
+                    draw = {
+                        columns = {
+                            { 'kind_icon' },
+                            { 'label' },
+                            { 'import_path' },
+                        },
+                        components = {
+                            import_path = {
+                                width = { max = 60 },
+                                text = function(ctx)
+                                    local data = ctx.item.data
+                                    if type(data) ~= 'table' then return '' end
+                                    local entry = data.entryNames
+                                    if type(entry) ~= 'table' then return '' end
+                                    local first = entry[1]
+                                    if type(first) ~= 'table' then return '' end
+                                    local source = first.source
+                                    if type(source) ~= 'string' or source == '' then return '' end
+                                    return source
+                                end,
+                                highlight = 'BlinkCmpLabelDescription',
+                            },
+                        },
+                    },
+                },
             },
 
+            -- (Default) list of enabled providers defined so that you can extend it
+            -- elsewhere in your config, without redefining it, due to `opts_extend`
             sources = {
                 default = { 'lazydev', 'lsp', 'path', 'snippets' },
 
@@ -705,13 +703,10 @@ require('lazy').setup({
                 },
             },
 
-            snippets = { preset = 'luasnip' },
-
-            -- See :h blink-cmp-config-fuzzy for more information
-            fuzzy = { implementation = 'prefer_rust_with_warning' },
-
-            -- Shows a signature help window while you type arguments for a function
-            -- signature = { enabled = true },
+            -- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
+            -- You may use a lua implementation instead by using `implementation = "lua"`
+            -- See the fuzzy documentation for more information
+            fuzzy = { implementation = 'rust' },
         },
     },
     { -- autopairs
