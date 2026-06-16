@@ -392,6 +392,7 @@ require('lazy').setup({
                 python = { 'black' },
                 kotlin = { 'ktfmt' },
                 zig = { 'zigfmt' },
+                asm = { 'asmfmt' },
             },
             notify_on_error = true,
             ignore_errors = false,
@@ -583,6 +584,9 @@ require('lazy').setup({
                 julials = {},
                 csharp_ls = {},
                 emmet_language_server = {},
+                asm_lsp = {
+                    filetypes = { 'asm', 's', 'S' },
+                },
             }
             require('mason').setup()
 
@@ -815,12 +819,12 @@ require('lazy').setup({
             { '<leader>i', '<cmd>Dirbuf<CR>' },
         },
     },
-    { -- hardtime
-        'm4xshen/hardtime.nvim',
-        lazy = false,
-        dependencies = { 'MunifTanjim/nui.nvim' },
-        opts = {},
-    },
+    -- { -- hardtime
+    --     'm4xshen/hardtime.nvim',
+    --     lazy = false,
+    --     dependencies = { 'MunifTanjim/nui.nvim' },
+    --     opts = {},
+    -- },
     { -- callgraph
         'barreiroleo/callgraph.nvim',
         opts = {},
