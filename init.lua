@@ -812,11 +812,14 @@ require('lazy').setup({
         ft = { 'markdown' },
         build = function() vim.fn['mkdp#util#install']() end,
     },
-    { -- difbuf
-        'elihunter173/dirbuf.nvim',
+    {
+        'stevearc/oil.nvim',
+        ---@module 'oil'
+        ---@type oil.SetupOpts
         opts = {},
+        dependencies = { "nvim-tree/nvim-web-devicons" },
         keys = {
-            { '<leader>i', '<cmd>Dirbuf<CR>' },
+            { '<leader>i', '<cmd>Oil<CR>' },
         },
     },
     -- { -- hardtime
