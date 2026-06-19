@@ -639,7 +639,7 @@ require('lazy').setup({
         dependencies = {
             'saghen/blink.lib',
             -- optional: provides snippets for the snippet source
-            'rafamadriz/friendly-snippets',
+            -- 'rafamadriz/friendly-snippets',
         },
         build = function()
             -- build the fuzzy matcher, optionally add a timeout to `pwait(timeout_ms)`
@@ -812,12 +812,12 @@ require('lazy').setup({
         ft = { 'markdown' },
         build = function() vim.fn['mkdp#util#install']() end,
     },
-    {
+    { -- oil.nvim
         'stevearc/oil.nvim',
         ---@module 'oil'
         ---@type oil.SetupOpts
         opts = {},
-        dependencies = { "nvim-tree/nvim-web-devicons" },
+        dependencies = { 'nvim-tree/nvim-web-devicons' },
         keys = {
             { '<leader>i', '<cmd>Oil<CR>' },
         },
