@@ -23,6 +23,7 @@ vim.opt.ff = 'unix'
 vim.o.cursorline = true
 vim.o.signcolumn = 'auto' -- Sign column is the column on the left for errors
 vim.o.scrolloff = 10 -- Minimal number of screen lines to keep above and below the cursor.
+vim.o.modeline = true
 
 vim.o.list = true -- Show whitespace charactes if they are at the end of a line
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
