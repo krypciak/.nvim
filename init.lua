@@ -707,7 +707,7 @@ require('lazy').setup({
             -- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
             -- You may use a lua implementation instead by using `implementation = "lua"`
             -- See the fuzzy documentation for more information
-            fuzzy = { implementation = 'rust' },
+            fuzzy = { implementation = 'prefer_rust_with_warning' },
         },
     },
     { -- autopairs
