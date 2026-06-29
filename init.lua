@@ -572,10 +572,12 @@ require('lazy').setup({
                         },
                     },
                 },
-                -- hls = {
-                --     filetypes = { 'haskell', 'lhaskell', 'cabal' },
-                -- },
-                zls = {},
+                zls = {
+                    settings = {
+                        build_on_save_args = { '-fincremental' },
+                        enable_argument_placeholders = false,
+                    },
+                },
                 jdtls = {},
                 yamlls = {},
                 bashls = {
