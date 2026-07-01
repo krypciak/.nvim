@@ -233,19 +233,50 @@ require('lazy').setup({
                 '<leader>fa',
                 function()
                     if get_git_toplevel() then
-                        require('telescope.builtin').git_files { show_untracked = true }
+                        require('telescope.builtin').git_files {
+                            show_untracked = true,
+                        }
                     else
-                        require('telescope.builtin').find_files {}
+                        require('telescope.builtin').find_files {
+                            hidden = true,
+                            follow = true,
+                        }
                     end
                 end,
             },
-            { '<leader>fA', '<cmd>Telescope find_files no_ignore=true no_ignore_parent=true<CR>' },
+            {
+                '<leader>fA',
+                function()
+                    require('telescope.builtin').find_files {
+                        hidden = true,
+                        follow = true,
+                        no_ignore = true,
+                        no_ignore_parent = true,
+                    }
+                end,
+            },
             {
                 '<leader>fs',
-                function() require('telescope.builtin').live_grep { cwd = get_git_toplevel() } end,
+                function()
+                    require('telescope.builtin').live_grep {
+                        cwd = get_git_toplevel(),
+                        additional_args = { '--hidden' },
+                    }
+                end,
             },
-            { '<leader>fd', '<cmd>Telescope current_buffer_fuzzy_find<CR>' },
-            { '<leader>fg', '<cmd>Telescope git_bcommits<CR>' },
+            {
+                '<leader>fS',
+                function()
+                    require('telescope.builtin').live_grep {
+                        additional_args = { '--hidden', '--no-ignore' },
+                    }
+                end,
+            },
+            {
+                '<leader>fd',
+                function() require('telescope.builtin').current_buffer_fuzzy_find {} end,
+            },
+            { '<leader>fg', function() require('telescope.builtin').git_bcommits {} end },
             {
                 '<leader>m',
                 function()
