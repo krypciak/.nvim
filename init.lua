@@ -425,6 +425,7 @@ require('lazy').setup({
                 kotlin = { 'ktfmt' },
                 zig = { 'zigfmt' },
                 asm = { 'asmfmt' },
+                nix = { 'nixfmt' },
             },
             notify_on_error = true,
             ignore_errors = false,
@@ -621,6 +622,7 @@ require('lazy').setup({
                 asm_lsp = {
                     filetypes = { 'asm', 's', 'S' },
                 },
+                nixd = {},
             }
             require('mason').setup()
 
