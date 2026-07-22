@@ -212,7 +212,101 @@ local function get_git_toplevel()
 end
 
 require('lazy').setup({
-    'itchyny/lightline.vim',
+    {
+        'nvim-lualine/lualine.nvim',
+        dependencies = { 'nvim-tree/nvim-web-devicons' },
+        opts = {
+            options = {
+                icons_enabled = true,
+                component_separators = { left = '|', right = '|' },
+                section_separators = { left = '', right = '' },
+                theme = {
+                    normal = {
+                        a = { fg = '#005f00', bg = '#afdf00', gui = 'bold' },
+                        b = { fg = '#ffffff', bg = '#585858' },
+                        c = { fg = '#8a8a8a', bg = '#303030' },
+                        x = { fg = '#606060', bg = '#d0d0d0' },
+                        y = { fg = '#bcbcbc', bg = '#585858' },
+                        z = { fg = '#9e9e9e', bg = '#303030' },
+                    },
+                    insert = {
+                        a = { fg = '#005f5f', bg = '#ffffff', gui = 'bold' },
+                        b = { fg = '#ffffff', bg = '#0087af' },
+                        c = { fg = '#87dfff', bg = '#005f87' },
+                        x = { fg = '#005f5f', bg = '#87dfff' },
+                        y = { fg = '#87dfff', bg = '#0087af' },
+                        z = { fg = '#87dfff', bg = '#005f87' },
+                    },
+                    replace = {
+                        a = { fg = '#ffffff', bg = '#df0000', gui = 'bold' },
+                        b = { fg = '#ffffff', bg = '#585858' },
+                        c = { fg = '#8a8a8a', bg = '#303030' },
+                        x = { fg = '#606060', bg = '#d0d0d0' },
+                        y = { fg = '#bcbcbc', bg = '#585858' },
+                        z = { fg = '#9e9e9e', bg = '#303030' },
+                    },
+                    visual = {
+                        a = { fg = '#5f0000', bg = '#ff8700', gui = 'bold' },
+                        b = { fg = '#ffffff', bg = '#585858' },
+                        c = { fg = '#8a8a8a', bg = '#303030' },
+                        x = { fg = '#606060', bg = '#d0d0d0' },
+                        y = { fg = '#bcbcbc', bg = '#585858' },
+                        z = { fg = '#9e9e9e', bg = '#303030' },
+                    },
+                    inactive = {
+                        a = { fg = '#585858', bg = '#262626' },
+                        b = { fg = '#585858', bg = '#262626' },
+                        c = { fg = '#585858', bg = '#262626' },
+                        x = { fg = '#262626', bg = '#606060' },
+                        y = { fg = '#585858', bg = '#262626' },
+                        z = { fg = '#585858', bg = '#121212' },
+                    },
+                    command = {
+                        a = { fg = '#005f00', bg = '#afdf00', gui = 'bold' },
+                        b = { fg = '#ffffff', bg = '#585858' },
+                        c = { fg = '#8a8a8a', bg = '#303030' },
+                        x = { fg = '#606060', bg = '#d0d0d0' },
+                        y = { fg = '#bcbcbc', bg = '#585858' },
+                        z = { fg = '#9e9e9e', bg = '#303030' },
+                    },
+                    terminal = {
+                        a = { fg = '#005f00', bg = '#afdf00', gui = 'bold' },
+                        b = { fg = '#ffffff', bg = '#585858' },
+                        c = { fg = '#8a8a8a', bg = '#303030' },
+                        x = { fg = '#606060', bg = '#d0d0d0' },
+                        y = { fg = '#bcbcbc', bg = '#585858' },
+                        z = { fg = '#9e9e9e', bg = '#303030' },
+                    },
+                },
+            },
+            sections = {
+                lualine_a = {
+                    'mode',
+                    { function() return 'PASTE' end, cond = function() return vim.o.paste end },
+                },
+                lualine_b = {
+                    {
+                        'filename',
+                        path = 0,
+                        file_icon = false,
+                        symbols = { modified = '[+]', readonly = '[RO]', unnamed = '[No Name]' },
+                    },
+                },
+                lualine_c = {},
+                lualine_x = { 'lineinfo' },
+                lualine_y = { 'progress' },
+                lualine_z = { 'fileformat', 'fileencoding', 'filetype' },
+            },
+            inactive_sections = {
+                lualine_a = {},
+                lualine_b = { { 'filename', path = 0, file_icon = false } },
+                lualine_c = {},
+                lualine_x = { 'lineinfo' },
+                lualine_y = { 'progress' },
+                lualine_z = {},
+            },
+        },
+    },
     { -- telescope
         'nvim-telescope/telescope.nvim',
         dependencies = { 'nvim-telescope/telescope-fzf-native.nvim', 'debugloop/telescope-undo.nvim' },
