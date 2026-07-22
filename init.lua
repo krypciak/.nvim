@@ -836,10 +836,11 @@ require('lazy').setup({
         },
     },
     { -- markdown-preview
-        'iamcco/markdown-preview.nvim',
-        cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+        'selimacerbas/markdown-preview.nvim',
+        dependencies = { 'selimacerbas/live-server.nvim' },
+        cmd = { 'MarkdownPreview', 'MarkdownPreviewStop', 'MarkdownPreviewRefresh' },
         ft = { 'markdown' },
-        build = function() vim.fn['mkdp#util#install']() end,
+        opts = {},
     },
     { -- oil.nvim
         'stevearc/oil.nvim',
