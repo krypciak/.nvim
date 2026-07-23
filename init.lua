@@ -870,6 +870,25 @@ require('lazy').setup({
         dependencies = { 'nvim-tree/nvim-web-devicons' },
         keys = {
             { '<leader>i', '<cmd>Oil<CR>' },
+            {
+                '<leader>y',
+                function()
+                    local dir = require('oil').get_current_dir()
+                    if dir then
+                        vim.fn.setreg('+', dir)
+                        vim.notify('Copied: ' .. dir, vim.log.levels.INFO)
+                    else
+                        local path = vim.fn.expand('%:p')
+                        if path ~= '' then
+                            vim.fn.setreg('+', path)
+                            vim.notify('Copied: ' .. path, vim.log.levels.INFO)
+                        else
+                            vim.notify('No path to copy', vim.log.levels.WARN)
+                        end
+                    end
+                end,
+                desc = 'Copy buffer path',
+            },
         },
     },
     -- { -- hardtime
