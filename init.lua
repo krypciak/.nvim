@@ -435,11 +435,14 @@ require('lazy').setup({
         opts = {
             formatters_by_ft = {
                 lua = { 'stylua' },
-                javascript = { 'prettier' },
-                typescript = { 'prettier' },
                 html = { 'prettier' },
                 css = { 'prettier' },
-                json = { 'prettier' },
+                javascript = { 'oxfmt' },
+                javascriptreact = { 'oxfmt' },
+                typescript = { 'oxfmt' },
+                typescriptreact = { 'oxfmt' },
+                json = { 'oxfmt' },
+                vue = { 'oxfmt' },
                 sh = { 'shfmt' },
                 python = { 'black' },
                 kotlin = { 'ktfmt' },
@@ -450,15 +453,13 @@ require('lazy').setup({
             notify_on_error = true,
             ignore_errors = false,
             formatters = {
+                oxfmt = {
+                    stdin = false,
+                    args = { '$FILENAME' },
+                },
                 shfmt = {
                     command = 'shfmt',
                     prepend_args = { '-i', '4' },
-                },
-                jsonprettierd = {
-                    stdin = true,
-                    inherit = false,
-                    command = 'prettierd',
-                    args = { '--parser=json', '--stdin-filepath', '$FILENAME' },
                 },
             },
         },
