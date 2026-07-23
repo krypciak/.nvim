@@ -491,19 +491,15 @@ require('lazy').setup({
                     -- Jump to the definition of the word under your cursor.
                     --  This is where a variable was first declared, or where a function is defined, etc.
                     --  To jump back, press <C-t>.
-                    map('<leader>gd', require('telescope.builtin').lsp_definitions, 'goto definition')
-                    map(
-                        '<leader>gD',
-                        function() require('telescope.builtin').lsp_definitions { jump_type = 'never' } end,
-                        'goto definition'
-                    )
+                    map('gd', require('telescope.builtin').lsp_definitions, 'goto definition')
+                    map('gD', function() require('telescope.builtin').lsp_definitions { jump_type = 'never' } end, 'goto definition')
 
-                    map('<leader>gs', require('telescope.builtin').lsp_references, 'goto references')
+                    map('gs', require('telescope.builtin').lsp_references, 'goto references')
 
                     -- Jump to the implementation of the word under your cursor.
                     --  Useful when your language has ways of declaring types without an actual implementation.
                     --  todo
-                    -- map('<leader>gD', require('telescope.builtin').lsp_implementations, 'goto implementation')
+                    -- map('gD', require('telescope.builtin').lsp_implementations, 'goto implementation')
 
                     -- Jump to the type of the word under your cursor.
                     --  Useful when you're not sure what type a variable is and you want to see
@@ -514,7 +510,7 @@ require('lazy').setup({
                     -- Fuzzy find all the symbols in your current document.
                     --  Symbols are things like variables, functions, types, etc.
                     --  todo
-                    -- map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+                    -- map('ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
 
                     -- Fuzzy find all the symbols in your current workspace.
                     --  Similar to document symbols, except searches over your entire project.
