@@ -639,6 +639,7 @@ require('lazy').setup({
                     filetypes = { 'asm', 's', 'S' },
                 },
                 nixd = {},
+                ts_ls = {},
             }
             require('mason').setup()
 
@@ -914,11 +915,6 @@ require('lazy').setup({
             },
         },
     },
-    { -- typescript-tools
-        'notomo/typescript-tools.nvim',
-        dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
-        opts = {},
-    },
     { -- SchemaStore
         'b0o/SchemaStore.nvim',
     },
@@ -1014,11 +1010,6 @@ vim.api.nvim_create_autocmd('FileType', {
             let @p='^df.Ienum ;lf=xx100@o'
         ]])
     end,
-})
-
-vim.api.nvim_create_autocmd('FileType', {
-    pattern = 'typescript',
-    callback = function() vim.keymap.set('n', '<leader>tf', '<cmd>TSToolsRemoveUnusedImports<CR><cmd>TSToolsAddMissingImports<CR>') end,
 })
 
 -- javascript
