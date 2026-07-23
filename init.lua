@@ -211,119 +211,27 @@ local function get_git_toplevel()
     return string.sub(obj.stdout, 0, string.len(obj.stdout) - 1)
 end
 
-local function statusline_filename()
-    local ok, oil = pcall(require, 'oil')
-    if ok then
-        local dir = oil.get_current_dir()
-        if dir then
-            return vim.fn.fnamemodify(dir, ':~')
-        end
-    end
-    local data = vim.fn.expand('%:t')
-    if data == '' then
-        return '[No Name]'
-    end
-    local symbols = {}
-    if vim.bo.modified then
-        table.insert(symbols, '[+]')
-    end
-    if not vim.bo.modifiable or vim.bo.readonly then
-        table.insert(symbols, '[RO]')
-    end
-    if #symbols > 0 then
-        return data .. ' ' .. table.concat(symbols, '')
-    end
-    return data
-end
-
 require('lazy').setup({
-    {
-        'nvim-lualine/lualine.nvim',
-        dependencies = { 'nvim-tree/nvim-web-devicons' },
-        opts = {
-            options = {
-                icons_enabled = true,
-                component_separators = { left = '|', right = '|' },
-                section_separators = { left = '', right = '' },
-                theme = {
-                    normal = {
-                        a = { fg = '#005f00', bg = '#afdf00', gui = 'bold' },
-                        b = { fg = '#ffffff', bg = '#585858' },
-                        c = { fg = '#8a8a8a', bg = '#303030' },
-                        x = { fg = '#9e9e9e', bg = '#303030' },
-                        y = { fg = '#bcbcbc', bg = '#585858' },
-                        z = { fg = '#606060', bg = '#d0d0d0' },
-                    },
-                    insert = {
-                        a = { fg = '#005f5f', bg = '#ffffff', gui = 'bold' },
-                        b = { fg = '#ffffff', bg = '#0087af' },
-                        c = { fg = '#87dfff', bg = '#005f87' },
-                        x = { fg = '#87dfff', bg = '#005f87' },
-                        y = { fg = '#87dfff', bg = '#0087af' },
-                        z = { fg = '#005f5f', bg = '#87dfff' },
-                    },
-                    replace = {
-                        a = { fg = '#ffffff', bg = '#df0000', gui = 'bold' },
-                        b = { fg = '#ffffff', bg = '#585858' },
-                        c = { fg = '#8a8a8a', bg = '#303030' },
-                        x = { fg = '#9e9e9e', bg = '#303030' },
-                        y = { fg = '#bcbcbc', bg = '#585858' },
-                        z = { fg = '#606060', bg = '#d0d0d0' },
-                    },
-                    visual = {
-                        a = { fg = '#5f0000', bg = '#ff8700', gui = 'bold' },
-                        b = { fg = '#ffffff', bg = '#585858' },
-                        c = { fg = '#8a8a8a', bg = '#303030' },
-                        x = { fg = '#9e9e9e', bg = '#303030' },
-                        y = { fg = '#bcbcbc', bg = '#585858' },
-                        z = { fg = '#606060', bg = '#d0d0d0' },
-                    },
-                    inactive = {
-                        a = { fg = '#585858', bg = '#262626' },
-                        b = { fg = '#585858', bg = '#262626' },
-                        c = { fg = '#585858', bg = '#262626' },
-                        x = { fg = '#262626', bg = '#606060' },
-                        y = { fg = '#585858', bg = '#262626' },
-                        z = { fg = '#585858', bg = '#121212' },
-                    },
-                    command = {
-                        a = { fg = '#005f00', bg = '#afdf00', gui = 'bold' },
-                        b = { fg = '#ffffff', bg = '#585858' },
-                        c = { fg = '#8a8a8a', bg = '#303030' },
-                        x = { fg = '#9e9e9e', bg = '#303030' },
-                        y = { fg = '#bcbcbc', bg = '#585858' },
-                        z = { fg = '#606060', bg = '#d0d0d0' },
-                    },
-                    terminal = {
-                        a = { fg = '#005f00', bg = '#afdf00', gui = 'bold' },
-                        b = { fg = '#ffffff', bg = '#585858' },
-                        c = { fg = '#8a8a8a', bg = '#303030' },
-                        x = { fg = '#9e9e9e', bg = '#303030' },
-                        y = { fg = '#bcbcbc', bg = '#585858' },
-                        z = { fg = '#606060', bg = '#d0d0d0' },
-                    },
+    { -- lightline
+        'itchyny/lightline.vim',
+        config = function()
+            vim.cmd([[
+                function! LightlineFilename()
+                    let dir = luaeval('pcall(require, "oil") and require("oil").get_current_dir() or ""')
+                    if !empty(dir)
+                        return fnamemodify(dir, ':~')
+                    endif
+                    let filename = expand('%:t')
+                    return empty(filename) ? '[No Name]' : filename
+                endfunction
+            ]])
+            vim.g.lightline = {
+                colorscheme = 'powerline',
+                component_function = {
+                    filename = 'LightlineFilename',
                 },
-            },
-            sections = {
-                lualine_a = {
-                    'mode',
-                    { function() return 'PASTE' end, cond = function() return vim.o.paste end },
-                },
-                lualine_b = { { statusline_filename } },
-                lualine_c = {},
-                lualine_x = { 'fileformat', 'encoding', 'filetype' },
-                lualine_y = { 'progress' },
-                lualine_z = { 'location' },
-            },
-            inactive_sections = {
-                lualine_a = {},
-                lualine_b = { statusline_filename },
-                lualine_c = {},
-                lualine_x = { 'location' },
-                lualine_y = { 'progress' },
-                lualine_z = {},
-            },
-        },
+            }
+        end,
     },
     { -- telescope
         'nvim-telescope/telescope.nvim',
