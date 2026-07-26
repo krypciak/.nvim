@@ -411,6 +411,7 @@ require('lazy').setup({
         'chrisgrieser/nvim-origami',
         event = 'VeryLazy',
         opts = {
+            pauseFoldsOnSearch = false,
             useLspFoldsWithTreesitterFallback = {
                 enabled = false,
             },
