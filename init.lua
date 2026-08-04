@@ -281,6 +281,7 @@ require('lazy').setup({
                     require('telescope.builtin').live_grep {
                         cwd = get_git_toplevel(),
                         additional_args = { '--hidden' },
+                        glob_pattern = "!.git"
                     }
                 end,
             },
