@@ -495,8 +495,11 @@ require('lazy').setup({
                     --  To jump back, press <C-t>.
                     map('gd', require('telescope.builtin').lsp_definitions, 'goto definition')
                     map('gD', function() require('telescope.builtin').lsp_definitions { jump_type = 'never' } end, 'goto definition')
+                    map('<leader>gd', function() print('nope') end, '')
+                    map('<leader>gD', function() print('nope') end, '')
 
                     map('gs', require('telescope.builtin').lsp_references, 'goto references')
+                    map('<leader>gs', function() print('nope') end, '')
 
                     -- Jump to the implementation of the word under your cursor.
                     --  Useful when your language has ways of declaring types without an actual implementation.
