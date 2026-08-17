@@ -644,7 +644,11 @@ require('lazy').setup({
                     filetypes = { 'asm', 's', 'S' },
                 },
                 nixd = {},
-                ts_ls = {},
+                tsserver7 = {
+                    cmd = { 'tsc', '--lsp', '--stdio' },
+                    filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+                    root_markers = { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' },
+                },
             }
             require('mason').setup()
 
