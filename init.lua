@@ -281,7 +281,7 @@ require('lazy').setup({
                     require('telescope.builtin').live_grep {
                         cwd = get_git_toplevel(),
                         additional_args = { '--hidden' },
-                        glob_pattern = "!.git"
+                        glob_pattern = '!.git',
                     }
                 end,
             },
@@ -584,8 +584,7 @@ require('lazy').setup({
             -- local vue_language_server_path = mason_registry.get_package('vue-language-server'):get_install_path()
             --     .. '/node_modules/@vue/language-server'
 
-            local capabilities = vim.lsp.protocol.make_client_capabilities()
-            -- capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+            local capabilities = require('blink.cmp').get_lsp_capabilities()
 
             -- Enable the following language servers
             --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -721,24 +720,7 @@ require('lazy').setup({
                         columns = {
                             { 'kind_icon' },
                             { 'label' },
-                            { 'import_path' },
-                        },
-                        components = {
-                            import_path = {
-                                width = { max = 60 },
-                                text = function(ctx)
-                                    local data = ctx.item.data
-                                    if type(data) ~= 'table' then return '' end
-                                    local entry = data.entryNames
-                                    if type(entry) ~= 'table' then return '' end
-                                    local first = entry[1]
-                                    if type(first) ~= 'table' then return '' end
-                                    local source = first.source
-                                    if type(source) ~= 'string' or source == '' then return '' end
-                                    return source
-                                end,
-                                highlight = 'BlinkCmpLabelDescription',
-                            },
+                            { 'label_description' },
                         },
                     },
                 },
@@ -779,7 +761,6 @@ require('lazy').setup({
             autopairs.setup(opts)
         end,
     },
-
     { -- lazygit
         'kdheepak/lazygit.nvim',
         cmd = {
