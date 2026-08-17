@@ -644,15 +644,11 @@ require('lazy').setup({
                     filetypes = { 'asm', 's', 'S' },
                 },
                 nixd = {},
-                tsserver7 = {
-                    cmd = { 'tsc', '--lsp', '--stdio' },
-                    filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
-                    root_markers = { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' },
-                },
+                vtsls = {},
             }
             require('mason').setup()
 
-            local ensure_installed = { 'stylua', 'lua_ls', 'jsonls', 'pylsp', 'bashls' }
+            local ensure_installed = { 'stylua', 'lua_ls', 'jsonls', 'pylsp', 'bashls', 'vtsls' }
             require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
             for server_name, server in pairs(servers) do
