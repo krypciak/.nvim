@@ -58,13 +58,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
     group = 'remember_folds',
     callback = function(args)
         if vim.bo.filetype == 'help' then return end
-        if is_big_file(args.buf) then
-            vim.defer_fn(function()
-                vim.schedule(function() vim.cmd('silent! loadview') end)
-            end, 1500)
-        else
-            vim.cmd('silent! loadview')
-        end
+        if not is_big_file(args.buf) then vim.cmd('silent! loadview') end
     end,
 })
 
@@ -176,7 +170,7 @@ vim.keymap.set('n', ']s', ']szz')
 vim.keymap.set('t', '<c-q>', '<cmd><cmd>q!<CR>')
 
 -- spelling
-vim.opt.spelllang = 'en_us'
+vim.opt.spelllang = { 'en_us' ,'pl_pl' }
 vim.opt.spell = false
 vim.keymap.set('', '<leader>p', '<cmd>setlocal spell!<CR>')
 
@@ -932,7 +926,6 @@ vim.keymap.set('n', '<leader>h', require('telescope.builtin').diagnostics, { des
 
 vim.o.background = 'dark'
 vim.api.nvim_set_hl(0, 'Folded', { bg = '#242629' })
-vim.api.nvim_set_hl(0, 'UfoCursorFoldedLine', { bg = '#484d51' })
 
 -- python
 vim.api.nvim_create_autocmd('FileType', {
