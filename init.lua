@@ -633,12 +633,14 @@ require('lazy').setup({
                 },
                 julials = {},
                 csharp_ls = {},
-                emmet_language_server = {},
                 asm_lsp = {
                     filetypes = { 'asm', 's', 'S' },
                 },
                 nixd = {},
                 vtsls = {},
+                emmet_language_server = {},
+                html = {},
+                cssls = {},
             }
             require('mason').setup()
 
