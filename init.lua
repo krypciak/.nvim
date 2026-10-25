@@ -170,7 +170,7 @@ vim.keymap.set('n', ']s', ']szz')
 vim.keymap.set('t', '<c-q>', '<cmd><cmd>q!<CR>')
 
 -- spelling
-vim.opt.spelllang = { 'en_us' ,'pl' }
+vim.opt.spelllang = { 'en_us', 'pl' }
 vim.opt.spell = false
 vim.keymap.set('', '<leader>p', '<cmd>setlocal spell!<CR>')
 
@@ -485,9 +485,6 @@ require('lazy').setup({
                 callback = function(event)
                     local map = function(keys, func, desc) vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc }) end
 
-                    -- Jump to the definition of the word under your cursor.
-                    --  This is where a variable was first declared, or where a function is defined, etc.
-                    --  To jump back, press <C-t>.
                     map('gd', require('telescope.builtin').lsp_definitions, 'goto definition')
                     map('gD', function() require('telescope.builtin').lsp_definitions { jump_type = 'never' } end, 'goto definition')
                     map('<leader>gd', function() print('nope') end, '')
@@ -496,72 +493,15 @@ require('lazy').setup({
                     map('gs', require('telescope.builtin').lsp_references, 'goto references')
                     map('<leader>gs', function() print('nope') end, '')
 
-                    -- Jump to the implementation of the word under your cursor.
-                    --  Useful when your language has ways of declaring types without an actual implementation.
-                    --  todo
-                    -- map('gD', require('telescope.builtin').lsp_implementations, 'goto implementation')
-
-                    -- Jump to the type of the word under your cursor.
-                    --  Useful when you're not sure what type a variable is and you want to see
-                    --  the definition of its *type*, not where it was *defined*.
-                    --  todo
-                    -- map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-
-                    -- Fuzzy find all the symbols in your current document.
-                    --  Symbols are things like variables, functions, types, etc.
-                    --  todo
-                    -- map('ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-
-                    -- Fuzzy find all the symbols in your current workspace.
-                    --  Similar to document symbols, except searches over your entire project.
-                    --  todo
-                    -- map(
-                    --     '<leader>ws',
-                    --     require('telescope.builtin').lsp_dynamic_workspace_symbols,
-                    --     '[W]orkspace [S]ymbols'
-                    -- )
-
                     map('<leader>s', vim.lsp.buf.rename, 'rename')
                     map('<leader>ca', vim.lsp.buf.code_action, 'code action')
                     map('K', vim.lsp.buf.hover, 'Hover Documentation')
                     -- map('<leader>gD', vim.lsp.buf.declaration, 'goto declaration')
 
-                    -- The following two autocommands are used to highlight references of the
-                    -- word under your cursor when your cursor rests there for a little while.
-                    --    See `:help CursorHold` for information about when this is executed
-                    --
-                    -- When you move your cursor, the highlights will be cleared (the second autocommand).
-                    -- todo
                     local client = vim.lsp.get_client_by_id(event.data.client_id)
-                    -- if client and client.server_capabilities.documentHighlightProvider then
-                    --     local highlight_augroup =
-                    --         vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
-                    --     vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-                    --         buffer = event.buf,
-                    --         group = highlight_augroup,
-                    --         callback = vim.lsp.buf.document_highlight,
-                    --     })
-                    --
-                    --     vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-                    --         buffer = event.buf,
-                    --         group = highlight_augroup,
-                    --         callback = vim.lsp.buf.clear_references,
-                    --     })
-                    --
-                    --     vim.api.nvim_create_autocmd('LspDetach', {
-                    --         group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
-                    --         callback = function(event2)
-                    --             vim.lsp.buf.clear_references()
-                    --             vim.api.nvim_clear_autocmds({ group = 'kickstart-lsp-highlight', buffer = event2.buf })
-                    --         end,
-                    --     })
-                    -- end
+                    if not client then return end
 
-                    -- The following autocommand is used to enable inlay hints in your
-                    -- code, if the language server you are using supports them
-                    --
-                    -- This may be unwanted, since they displace some of your code
-                    if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
+                    if client:supports_method('textDocument/inlayHint') then
                         map(
                             '<leader>th',
                             function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
@@ -570,25 +510,12 @@ require('lazy').setup({
                     end
 
                     -- Disable java lsp (jdtls) from providing its own (worse in my opinion) sytnax highlighting
-                    if client and client.name == 'jdtls' then client.server_capabilities.semanticTokensProvider = nil end
+                    if client.name == 'jdtls' then client.server_capabilities.semanticTokensProvider = nil end
                 end,
             })
 
-            -- local mason_registry = require('mason-registry')
-            -- local vue_language_server_path = mason_registry.get_package('vue-language-server'):get_install_path()
-            --     .. '/node_modules/@vue/language-server'
-
             local capabilities = require('blink.cmp').get_lsp_capabilities()
 
-            -- Enable the following language servers
-            --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
-            --
-            --  Add any additional override configuration in the following tables. Available keys are:
-            --  - cmd (table): Override the default command used to start the server
-            --  - filetypes (table): Override the default list of associated filetypes for the server
-            --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
-            --  - settings (table): Override the default settings passed when initializing the server.
-            --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
             local servers = {
                 lua_ls = {
                     settings = {
@@ -638,6 +565,16 @@ require('lazy').setup({
                 },
                 nixd = {},
                 vtsls = {},
+                -- tsc = {
+                --     cmd = { 'tsc', '--lsp', '--stdio' },
+                --     filetypes = {
+                --         'javascript',
+                --         'javascriptreact',
+                --         'typescript',
+                --         'typescriptreact',
+                --     },
+                --     root_markers = { 'package.json', 'tsconfig.json', '.git' },
+                -- },
                 emmet_language_server = {},
                 html = {},
                 cssls = {},
