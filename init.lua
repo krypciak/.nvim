@@ -431,8 +431,8 @@ require('lazy').setup({
         opts = {
             formatters_by_ft = {
                 lua = { 'stylua' },
-                html = { 'prettier' },
-                css = { 'prettier' },
+                html = { 'oxfmt' },
+                css = { 'oxfmt' },
                 javascript = { 'oxfmt' },
                 javascriptreact = { 'oxfmt' },
                 typescript = { 'oxfmt' },
