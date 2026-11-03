@@ -172,6 +172,7 @@ vim.keymap.set('t', '<c-q>', '<cmd><cmd>q!<CR>')
 -- spelling
 vim.opt.spelllang = { 'en_us', 'pl' }
 vim.opt.spell = false
+vim.opt.spellcapcheck = "" -- disable capital letter checking
 vim.keymap.set('', '<leader>p', '<cmd>setlocal spell!<CR>')
 
 vim.diagnostic.config {
