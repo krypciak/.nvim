@@ -648,6 +648,10 @@ require('lazy').setup({
             completion = {
                 documentation = { auto_show = false },
                 accept = { auto_brackets = { enabled = true } },
+                -- Avoid re-triggering completions after accepting an item when the cursor
+                -- lands after a trigger character, e.g. accepting the HTML LSP's
+                -- `</section>` closing tag suggestion and getting it suggested again.
+                trigger = { show_on_accept_on_trigger_character = false },
                 menu = {
                     draw = {
                         columns = {
@@ -668,7 +672,6 @@ require('lazy').setup({
                     lazydev = {
                         name = 'LazyDev',
                         module = 'lazydev.integrations.blink',
-                        -- make lazydev completions top priority (see `:h blink.cmp`)
                         score_offset = 100,
                     },
                 },
