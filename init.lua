@@ -116,12 +116,15 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- keybindings
--- d stands for delete not cut
-vim.keymap.set('n', 'x', '"_x')
-vim.keymap.set('n', 'X', '"_X')
-vim.keymap.set('n', 'd', '"_d')
-vim.keymap.set('n', 'D', '"_D')
-vim.keymap.set('v', 'd', '"_d')
+-- d/c stand for delete/change, not cut
+vim.keymap.set({ 'n', 'v' }, 'x', '"_x')
+vim.keymap.set({ 'n', 'v' }, 'X', '"_X')
+vim.keymap.set({ 'n', 'v' }, 'd', '"_d')
+vim.keymap.set({ 'n', 'v' }, 'D', '"_D')
+vim.keymap.set({ 'n', 'v' }, 'c', '"_c')
+vim.keymap.set({ 'n', 'v' }, 'C', '"_C')
+vim.keymap.set({ 'n', 'v' }, 's', '"_s')
+vim.keymap.set('n', 'S', '"_S')
 vim.keymap.set('n', '<leader>d', '"+d')
 vim.keymap.set('n', '<leader>D', '"+D')
 vim.keymap.set('v', '<leader>d', '"+d')
@@ -432,14 +435,14 @@ require('lazy').setup({
         opts = {
             formatters_by_ft = {
                 lua = { 'stylua' },
-                html = { 'oxfmt' },
-                css = { 'oxfmt' },
-                javascript = { 'oxfmt' },
-                javascriptreact = { 'oxfmt' },
-                typescript = { 'oxfmt' },
-                typescriptreact = { 'oxfmt' },
-                json = { 'oxfmt' },
-                vue = { 'oxfmt' },
+                html = { 'bun fmt' },
+                css = { 'bun fmt' },
+                javascript = { 'bun fmt' },
+                javascriptreact = { 'bun fmt' },
+                typescript = { 'bun fmt' },
+                typescriptreact = { 'bun fmt' },
+                json = { 'bun fmt' },
+                vue = { 'bun fmt' },
                 sh = { 'shfmt' },
                 python = { 'black' },
                 kotlin = { 'ktfmt' },
