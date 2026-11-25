@@ -101,11 +101,6 @@ function! MyDeleteView()
     call delete(path)
     echo "Deleted: ".path
 endfunction
-
-" # Command Delview (and it's abbreviation 'delview')
-command Delview call MyDeleteView()
-" Lower-case user commands: http://vim.wikia.com/wiki/Replace_a_builtin_command_using_cabbrev
-cabbrev delview <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'Delview' : 'delview')<CR>
 ]])
 
 -- Highlight when yanking (copying) text
@@ -175,7 +170,7 @@ vim.keymap.set('t', '<c-q>', '<cmd><cmd>q!<CR>')
 -- spelling
 vim.opt.spelllang = { 'en_us', 'pl' }
 vim.opt.spell = false
-vim.opt.spellcapcheck = "" -- disable capital letter checking
+vim.opt.spellcapcheck = '' -- disable capital letter checking
 vim.keymap.set('', '<leader>p', '<cmd>setlocal spell!<CR>')
 
 vim.diagnostic.config {
@@ -872,6 +867,45 @@ vim.keymap.set('n', '<leader>h', require('telescope.builtin').diagnostics, { des
 
 vim.o.background = 'dark'
 vim.api.nvim_set_hl(0, 'Folded', { bg = '#242629' })
+
+-- delview
+-- Delete the current view, reset folds (zR), and prevent the old view
+-- from being re-saved on BufWinLeave.
+local function my_delete_view()
+    -- Replicate mkview's path construction
+    local path = vim.fn.fnamemodify(vim.fn.bufname('%'), ':p')
+    path = path:gsub('=', '==')
+
+    local home = vim.env.HOME or ''
+    if home ~= '' and path:sub(1, #home) == home then path = '~' .. path:sub(#home + 1) end
+
+    path = path:gsub('/', '=+') .. '='
+    path = vim.o.viewdir .. '/' .. path
+
+    vim.fn.delete(path)
+    vim.cmd('normal! zR')
+    vim.b.no_view_save = 1
+    vim.cmd('normal! ZR')
+    vim.b.no_view_save = nil
+end
+
+vim.api.nvim_create_user_command('Delview', my_delete_view, {})
+
+local augroup = vim.api.nvim_create_augroup('keepview', { clear = true })
+
+vim.api.nvim_create_autocmd('BufWinLeave', {
+    group = augroup,
+    pattern = '?*',
+    callback = function()
+        if not vim.b.no_view_save then vim.cmd('mkview') end
+    end,
+})
+
+vim.api.nvim_create_autocmd('BufWinEnter', {
+    group = augroup,
+    pattern = '?*',
+    callback = function() vim.cmd('silent! loadview') end,
+})
 
 -- python
 vim.api.nvim_create_autocmd('FileType', {
